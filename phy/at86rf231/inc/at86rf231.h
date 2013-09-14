@@ -74,11 +74,13 @@ enum
   PHY_ED_LEVEL_REG = 0x07,
   PHY_CC_CCA_REG   = 0x08,
   CCA_THRESH_REG   = 0x09,
+  TRX_CTRL_2_REG   = 0x0c,
   IRQ_MASK_REG     = 0x0e,
   IRQ_STATUS_REG   = 0x0f,
   VREG_CTRL_REG    = 0x10,
   BATMON_REG       = 0x11,
   XOSC_CTRL_REG    = 0x12,
+  XAH_CTRL_1_REG   = 0x17,
   PLL_CF_REG       = 0x1a,
   PLL_DCU_REG      = 0x1b,
   PART_NUM_REG     = 0x1c,
@@ -174,6 +176,14 @@ enum
   AES_STATUS_ER     = 7,
 };
 
+enum
+{
+  OQPSK_DATA_RATE_250K  = 0,
+  OQPSK_DATA_RATE_500K  = 1,
+  OQPSK_DATA_RATE_1000K = 2,
+  OQPSK_DATA_RATE_2000K = 3,
+};
+
 typedef enum PHY_State_t
 {
   PHY_STATE_INITIAL,
@@ -190,6 +200,7 @@ typedef enum PHY_State_t
 extern volatile PHY_State_t phyState;
 extern volatile uint8_t     phyTxStatus;
 extern volatile int8_t      phyRxRssi;
+extern volatile uint8_t     phyDataRate;
 
 /*- Implementations --------------------------------------------------------*/
 
@@ -236,7 +247,10 @@ INLINE void phyInterruptHandler(void)
   else if (PHY_STATE_IDLE == phyState)
   {
     phyWriteRegisterInline(TRX_STATE_REG, TRX_CMD_PLL_ON);
-    phyRxRssi = (int8_t)phyReadRegisterInline(PHY_ED_LEVEL_REG);
+    if (phyDataRate == OQPSK_DATA_RATE_250K)
+    {
+      phyRxRssi = (int8_t)phyReadRegisterInline(PHY_ED_LEVEL_REG);
+    } 
     phyState = PHY_STATE_RX_IND;
   }
 
@@ -250,3 +264,6 @@ INLINE void phyInterruptHandler(void)
 }
 
 #endif // _AT86RF231_H_
+
+// vim: shiftwidth=2 
+

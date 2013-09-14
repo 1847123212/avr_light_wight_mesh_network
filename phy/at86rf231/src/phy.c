@@ -41,6 +41,8 @@
  *
  */
 
+#include <config.h>
+
 #ifdef PHY_AT86RF231
 
 /*- Includes ---------------------------------------------------------------*/
@@ -63,11 +65,12 @@ enum
   PHY_REQ_RANDOM   = (1 << 5),
   PHY_REQ_ENCRYPT  = (1 << 6),
   PHY_REQ_ED       = (1 << 7),
+  PHY_REQ_DATARATE  = (1 << 8), 
 };
 
 typedef struct PhyIb_t
 {
-  uint8_t     request;
+  uint16_t     request;
 
   uint8_t     channel;
   uint16_t    panId;
@@ -78,6 +81,7 @@ typedef struct PhyIb_t
   uint8_t     *text;
   uint8_t     *key;
 #endif
+  uint8_t datarate;
 } PhyIb_t;
 
 /*- Prototypes -------------------------------------------------------------*/
@@ -91,6 +95,7 @@ static PhyIb_t       phyIb;
 volatile PHY_State_t phyState = PHY_STATE_INITIAL;
 volatile uint8_t     phyTxStatus;
 volatile int8_t      phyRxRssi;
+volatile uint8_t     phyDataRate;
 static uint8_t       phyRxBuffer[128];
 
 /*- Implementations --------------------------------------------------------*/
@@ -111,6 +116,7 @@ void PHY_Init(void)
   phyIb.request = PHY_REQ_NONE;
   phyIb.rx = false;
   phyState = PHY_STATE_IDLE;
+  phyDataRate = OQPSK_DATA_RATE_250K;
 }
 
 /*************************************************************************//**
@@ -154,6 +160,14 @@ void PHY_SetTxPower(uint8_t txPower)
 }
 
 /*************************************************************************//**
+*****************************************************************************/
+void PHY_SetDataRate(uint8_t datarate)
+{
+  phyIb.request |= PHY_REQ_DATARATE;
+  phyIb.datarate = datarate;
+}
+
+/*****************************************************************************
 *****************************************************************************/
 bool PHY_Busy(void)
 {
@@ -374,6 +388,19 @@ static void phyHandleSetRequests(void)
   phySetRxState();
 #endif
 
+  if (phyIb.request & PHY_REQ_DATARATE)
+  {
+    phyWriteRegister(TRX_CTRL_2_REG, phyIb.datarate);
+    if (phyIb.datarate > OQPSK_DATA_RATE_250K)
+    {
+      /* Only wait 2 symbol periods/32us before sending ack */
+      phyWriteRegister(XAH_CTRL_1_REG, (1<<2));
+    } else {
+      /* 802.15.4-compliant 12 symbol periods before ack */
+      phyWriteRegister(XAH_CTRL_1_REG, 0);
+    }
+  }
+
   phyIb.request = PHY_REQ_NONE;
 }
 
@@ -423,8 +450,15 @@ void PHY_TaskHandler(void)
 
       ind.data = phyRxBuffer;
       ind.size = size - 2/*crc*/;
-      ind.lqi  = phyRxBuffer[size];
-      ind.rssi = phyRxRssi + PHY_RSSI_BASE_VAL;
+      if (phyDataRate == OQPSK_DATA_RATE_250K)
+      {
+        ind.lqi  = phyRxBuffer[size];
+        ind.rssi = phyRxRssi + PHY_RSSI_BASE_VAL;
+      } else {
+        /* in high data rate modes, the byte following the PDSU is the ED level */
+        ind.rssi = (int8_t)phyRxBuffer[size] + PHY_RSSI_BASE_VAL;
+        ind.lqi = 255; /* no LQI in high data rate mode */
+      }
       PHY_DataInd(&ind);
 
       while (TRX_CMD_PLL_ON != (phyReadRegister(TRX_STATUS_REG) & TRX_STATUS_TRX_STATUS_MASK));
@@ -451,3 +485,6 @@ void PHY_TaskHandler(void)
 }
 
 #endif // PHY_AT86RF231
+
+// vim: shiftwidth=2 
+

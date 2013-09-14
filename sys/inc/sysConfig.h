@@ -45,7 +45,7 @@
 #define _SYS_CONFIG_H_
 
 /*- Includes ---------------------------------------------------------------*/
-#include "config.h"
+#include <config.h>
 
 /*- Definitions ------------------------------------------------------------*/
 #ifndef NWK_BUFFERS_AMOUNT

@@ -143,6 +143,8 @@
 
 #elif defined(HAL_ATSAMD20J18)
 
+#elif defined(HAL_ATXMEGAA4)
+
 #else
   #error Unknown HAL
 #endif

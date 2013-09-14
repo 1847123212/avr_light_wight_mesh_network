@@ -1,9 +1,9 @@
 /**
- * \file phy.h
+ * \file halUart.h
  *
- * \brief AT86RF231 PHY interface
+ * \brief ATxmega128b1 UART interface
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,64 +37,26 @@
  *
  * \asf_license_stop
  *
- * $Id: phy.h 7863 2013-05-13 20:14:34Z ataradov $
+ * $Id: halUart.h 5223 2012-09-10 16:47:17Z ataradov $
  *
  */
 
-#ifndef _PHY_H_
-#define _PHY_H_
+#ifndef _HAL_UART_H_
+#define _HAL_UART_H_
 
-/*- Includes ---------------------------------------------------------------*/
 #include <stdint.h>
-#include <stdbool.h>
-#include "sysConfig.h"
-#include "halPhy.h"
-#include "at86rf231.h"
+#include <sysConfig.h>
 
-/*- Definitions ------------------------------------------------------------*/
-#define PHY_RSSI_BASE_VAL                     (-90)
+#ifdef HAL_ENABLE_UART
 
-#define PHY_HAS_RANDOM_NUMBER_GENERATOR
-#define PHY_HAS_AES_MODULE
+/*****************************************************************************
+*****************************************************************************/
+void HAL_UartInit(uint32_t baudrate);
+void HAL_UartWriteByte(uint8_t byte);
+uint8_t HAL_UartReadByte(void);
+void HAL_UartBytesReceived(uint16_t bytes);
+void HAL_UartTaskHandler(void);
 
-/*- Types ------------------------------------------------------------------*/
-typedef struct PHY_DataInd_t
-{
-  uint8_t    *data;
-  uint8_t    size;
-  uint8_t    lqi;
-  int8_t     rssi;
-} PHY_DataInd_t;
+#endif // HAL_ENABLE_UART
 
-/*- Prototypes -------------------------------------------------------------*/
-void PHY_Init(void);
-void PHY_SetRxState(bool rx);
-void PHY_SetChannel(uint8_t channel);
-void PHY_SetPanId(uint16_t panId);
-void PHY_SetShortAddr(uint16_t addr);
-void PHY_SetDataRate(uint8_t datarate);
-void PHY_SetTxPower(uint8_t txPower);
-bool PHY_Busy(void);
-void PHY_Sleep(void);
-void PHY_Wakeup(void);
-void PHY_DataReq(uint8_t *data, uint8_t size);
-void PHY_DataConf(uint8_t status);
-void PHY_DataInd(PHY_DataInd_t *ind);
-void PHY_TaskHandler(void);
-
-#ifdef PHY_ENABLE_RANDOM_NUMBER_GENERATOR
-void PHY_RandomReq(void);
-void PHY_RandomConf(uint16_t rnd);
-#endif
-
-#ifdef PHY_ENABLE_AES_MODULE
-void PHY_EncryptReq(uint8_t *text, uint8_t *key);
-void PHY_EncryptConf();
-#endif
-
-#ifdef PHY_ENABLE_ENERGY_DETECTION
-void PHY_EdReq(void);
-void PHY_EdConf(int8_t ed);
-#endif
-
-#endif // _PHY_H_
+#endif // _HAL_UART_H_
