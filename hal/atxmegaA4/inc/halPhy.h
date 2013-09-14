@@ -1,7 +1,7 @@
 /**
- * \file phy.h
+ * \file halPhy.h
  *
- * \brief AT86RF231 PHY interface
+ * \brief ATxmega128b1 PHY interface
  *
  * Copyright (C) 2012 Atmel Corporation. All rights reserved.
  *
@@ -37,65 +37,79 @@
  *
  * \asf_license_stop
  *
- * $Id: phy.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: halPhy.h 5223 2012-09-10 16:47:17Z ataradov $
  *
  */
 
-#ifndef _PHY_H_
-#define _PHY_H_
+#ifndef _HAL_PHY_H_
+#define _HAL_PHY_H_
 
 #include <stdint.h>
-#include <stdbool.h>
-#include "sysConfig.h"
-#include "halPhy.h"
-#include "at86rf231.h"
+#include "hal.h"
+#include "halGpio.h"
 
 /*****************************************************************************
 *****************************************************************************/
-#define PHY_RSSI_BASE_VAL                     (-90)
-
-#define PHY_HAS_RANDOM_NUMBER_GENERATOR
-#define PHY_HAS_AES_MODULE
+#if defined(PLATFORM_MR16_BOARD)
+  HAL_GPIO_PIN(PHY_RST,    D, 1);
+  HAL_GPIO_PIN(PHY_IRQ,    C, 3);
+  HAL_GPIO_PIN(PHY_SLP_TR, D, 0);
+  HAL_GPIO_PIN(PHY_CS,     C, 4);
+  HAL_GPIO_PIN(PHY_MOSI,   C, 5);
+  HAL_GPIO_PIN(PHY_MISO,   C, 6);
+  HAL_GPIO_PIN(PHY_SCK,    C, 7);
+#elif defined(PLATFORM_TIDMARSH_NODE)
+  HAL_GPIO_PIN(PHY_RST,    C, 2);
+  HAL_GPIO_PIN(PHY_IRQ,    D, 0);
+  HAL_GPIO_PIN(PHY_SLP_TR, C, 3);
+  HAL_GPIO_PIN(PHY_CS,     C, 4);
+  HAL_GPIO_PIN(PHY_MOSI,   C, 5);
+  HAL_GPIO_PIN(PHY_MISO,   C, 6);
+  HAL_GPIO_PIN(PHY_SCK,    C, 7);
+#endif
 
 /*****************************************************************************
 *****************************************************************************/
-typedef struct PHY_DataInd_t
+uint8_t HAL_PhySpiWriteByte(uint8_t value);
+void HAL_PhyReset(void);
+void halPhyInit(void);
+
+/*****************************************************************************
+*****************************************************************************/
+INLINE uint8_t HAL_PhySpiWriteByteInline(uint8_t value)
 {
-  uint8_t    *data;
-  uint8_t    size;
-  uint8_t    lqi;
-  int8_t     rssi;
-} PHY_DataInd_t;
+  SPIC.DATA = value;
+  while (!(SPIC.STATUS & SPI_IF_bm));
+  return SPIC.DATA;
+}
 
 /*****************************************************************************
 *****************************************************************************/
-void PHY_Init(void);
-void PHY_SetRxState(bool rx);
-void PHY_SetChannel(uint8_t channel);
-void PHY_SetPanId(uint16_t panId);
-void PHY_SetShortAddr(uint16_t addr);
-void PHY_SetDataRate(uint8_t datarate);
-bool PHY_Busy(void);
-void PHY_Sleep(void);
-void PHY_Wakeup(void);
-void PHY_DataReq(uint8_t *data, uint8_t size);
-void PHY_DataConf(uint8_t status);
-void PHY_DataInd(PHY_DataInd_t *ind);
-void PHY_TaskHandler(void);
+INLINE void HAL_PhySpiSelect(void)
+{
+  HAL_GPIO_PHY_CS_clr();
+}
 
-#ifdef PHY_ENABLE_RANDOM_NUMBER_GENERATOR
-void PHY_RandomReq(void);
-void PHY_RandomConf(uint16_t rnd);
-#endif
+/*****************************************************************************
+*****************************************************************************/
+INLINE void HAL_PhySpiDeselect(void)
+{
+  HAL_GPIO_PHY_CS_set();
+}
 
-#ifdef PHY_ENABLE_AES_MODULE
-void PHY_EncryptReq(uint8_t *text, uint8_t *key);
-void PHY_EncryptConf();
-#endif
+/*****************************************************************************
+*****************************************************************************/
+INLINE void HAL_PhySlpTrSet(void)
+{
+  HAL_GPIO_PHY_SLP_TR_set();
+}
 
-#ifdef PHY_ENABLE_ENERGY_DETECTION
-void PHY_EdReq(void);
-void PHY_EdConf(int8_t ed);
-#endif
+/*****************************************************************************
+*****************************************************************************/
+INLINE void HAL_PhySlpTrClear(void)
+{
+  HAL_GPIO_PHY_SLP_TR_clr();
+}
 
-#endif // _PHY_H_
+#endif // _HAL_PHY_H_
+

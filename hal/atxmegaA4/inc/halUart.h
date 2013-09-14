@@ -1,7 +1,7 @@
 /**
- * \file sysConfig.h
+ * \file halUart.h
  *
- * \brief Main system configyration file
+ * \brief ATxmega128b1 UART interface
  *
  * Copyright (C) 2012 Atmel Corporation. All rights reserved.
  *
@@ -37,56 +37,26 @@
  *
  * \asf_license_stop
  *
- * $Id: sysConfig.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: halUart.h 5223 2012-09-10 16:47:17Z ataradov $
  *
  */
 
-#ifndef _SYS_CONFIG_H_
-#define _SYS_CONFIG_H_
+#ifndef _HAL_UART_H_
+#define _HAL_UART_H_
 
-#include <config.h>
+#include <stdint.h>
+#include <sysConfig.h>
 
-/*****************************************************************************
-*****************************************************************************/
-#ifndef NWK_BUFFERS_AMOUNT
-#define NWK_BUFFERS_AMOUNT                       1
-#endif
-
-#ifndef NWK_MAX_ENDPOINTS_AMOUNT
-#define NWK_MAX_ENDPOINTS_AMOUNT                 1
-#endif
-
-#ifndef NWK_DUPLICATE_REJECTION_TABLE_SIZE
-#define NWK_DUPLICATE_REJECTION_TABLE_SIZE       1
-#endif
-
-#ifndef NWK_DUPLICATE_REJECTION_TTL
-#define NWK_DUPLICATE_REJECTION_TTL              1000 // ms
-#endif
-
-#ifndef NWK_ROUTE_TABLE_SIZE
-#define NWK_ROUTE_TABLE_SIZE                     0
-#endif
-
-#ifndef NWK_ROUTE_DEFAULT_SCORE
-#define NWK_ROUTE_DEFAULT_SCORE                  3
-#endif
-
-#ifndef NWK_ACK_WAIT_TIME
-#define NWK_ACK_WAIT_TIME                        1000 // ms
-#endif
-
-//#define NWK_ENABLE_ROUTING
-//#define NWK_ENABLE_SECURITY
-
-#ifndef SYS_SECURITY_MODE
-#define SYS_SECURITY_MODE                        0
-#endif
+#ifdef HAL_ENABLE_UART
 
 /*****************************************************************************
 *****************************************************************************/
-#if defined(NWK_ENABLE_SECURITY) && (SYS_SECURITY_MODE == 0)
-  #define PHY_ENABLE_AES_MODULE
-#endif
+void HAL_UartInit(uint32_t baudrate);
+void HAL_UartWriteByte(uint8_t byte);
+uint8_t HAL_UartReadByte(void);
+void HAL_UartBytesReceived(uint16_t bytes);
+void HAL_UartTaskHandler(void);
 
-#endif // _SYS_CONFIG_H_
+#endif // HAL_ENABLE_UART
+
+#endif // _HAL_UART_H_

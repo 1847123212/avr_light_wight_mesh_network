@@ -1,7 +1,7 @@
 /**
- * \file sysConfig.h
+ * \file halSleep.h
  *
- * \brief Main system configyration file
+ * \brief ATxmega128b1 sleep interface
  *
  * Copyright (C) 2012 Atmel Corporation. All rights reserved.
  *
@@ -37,56 +37,17 @@
  *
  * \asf_license_stop
  *
- * $Id: sysConfig.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: halSleep.h 5223 2012-09-10 16:47:17Z ataradov $
  *
  */
 
-#ifndef _SYS_CONFIG_H_
-#define _SYS_CONFIG_H_
+#ifndef _HAL_SLEEP_H_
+#define _HAL_SLEEP_H_
 
-#include <config.h>
-
-/*****************************************************************************
-*****************************************************************************/
-#ifndef NWK_BUFFERS_AMOUNT
-#define NWK_BUFFERS_AMOUNT                       1
-#endif
-
-#ifndef NWK_MAX_ENDPOINTS_AMOUNT
-#define NWK_MAX_ENDPOINTS_AMOUNT                 1
-#endif
-
-#ifndef NWK_DUPLICATE_REJECTION_TABLE_SIZE
-#define NWK_DUPLICATE_REJECTION_TABLE_SIZE       1
-#endif
-
-#ifndef NWK_DUPLICATE_REJECTION_TTL
-#define NWK_DUPLICATE_REJECTION_TTL              1000 // ms
-#endif
-
-#ifndef NWK_ROUTE_TABLE_SIZE
-#define NWK_ROUTE_TABLE_SIZE                     0
-#endif
-
-#ifndef NWK_ROUTE_DEFAULT_SCORE
-#define NWK_ROUTE_DEFAULT_SCORE                  3
-#endif
-
-#ifndef NWK_ACK_WAIT_TIME
-#define NWK_ACK_WAIT_TIME                        1000 // ms
-#endif
-
-//#define NWK_ENABLE_ROUTING
-//#define NWK_ENABLE_SECURITY
-
-#ifndef SYS_SECURITY_MODE
-#define SYS_SECURITY_MODE                        0
-#endif
+#include <stdint.h>
 
 /*****************************************************************************
 *****************************************************************************/
-#if defined(NWK_ENABLE_SECURITY) && (SYS_SECURITY_MODE == 0)
-  #define PHY_ENABLE_AES_MODULE
-#endif
+void HAL_Sleep(uint32_t interval);
 
-#endif // _SYS_CONFIG_H_
+#endif // _HAL_SLEEP_H_

@@ -1,7 +1,7 @@
 /**
- * \file sysConfig.h
+ * \file hal.c
  *
- * \brief Main system configyration file
+ * \brief ATxmega128b1 HAL implementation
  *
  * Copyright (C) 2012 Atmel Corporation. All rights reserved.
  *
@@ -37,56 +37,79 @@
  *
  * \asf_license_stop
  *
- * $Id: sysConfig.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: hal.c 5223 2012-09-10 16:47:17Z ataradov $
  *
  */
 
-#ifndef _SYS_CONFIG_H_
-#define _SYS_CONFIG_H_
-
-#include <config.h>
-
-/*****************************************************************************
-*****************************************************************************/
-#ifndef NWK_BUFFERS_AMOUNT
-#define NWK_BUFFERS_AMOUNT                       1
-#endif
-
-#ifndef NWK_MAX_ENDPOINTS_AMOUNT
-#define NWK_MAX_ENDPOINTS_AMOUNT                 1
-#endif
-
-#ifndef NWK_DUPLICATE_REJECTION_TABLE_SIZE
-#define NWK_DUPLICATE_REJECTION_TABLE_SIZE       1
-#endif
-
-#ifndef NWK_DUPLICATE_REJECTION_TTL
-#define NWK_DUPLICATE_REJECTION_TTL              1000 // ms
-#endif
-
-#ifndef NWK_ROUTE_TABLE_SIZE
-#define NWK_ROUTE_TABLE_SIZE                     0
-#endif
-
-#ifndef NWK_ROUTE_DEFAULT_SCORE
-#define NWK_ROUTE_DEFAULT_SCORE                  3
-#endif
-
-#ifndef NWK_ACK_WAIT_TIME
-#define NWK_ACK_WAIT_TIME                        1000 // ms
-#endif
-
-//#define NWK_ENABLE_ROUTING
-//#define NWK_ENABLE_SECURITY
-
-#ifndef SYS_SECURITY_MODE
-#define SYS_SECURITY_MODE                        0
-#endif
+#include "hal.h"
+#include "halPhy.h"
+#include "halTimer.h"
 
 /*****************************************************************************
 *****************************************************************************/
-#if defined(NWK_ENABLE_SECURITY) && (SYS_SECURITY_MODE == 0)
-  #define PHY_ENABLE_AES_MODULE
+#define CONFIGURATION_CHANGE_PROTECTION  do { CCP = 0xd8; } while (0)
+
+/*****************************************************************************
+*****************************************************************************/
+#if 0
+static void halSetSystemFrequency(void)
+{
+  // Assuming operation from the internal RC oscillator (2 MHz)
+#if F_CPU == 4000000
+  OSC.PLLCTRL = OSC_PLLSRC_RC2M_gc | OSC_PLLFAC3_bm;
+  OSC.CTRL |= OSC_PLLEN_bm;
+  while (0 == (OSC.STATUS & OSC_PLLRDY_bm));
+  CONFIGURATION_CHANGE_PROTECTION;
+  CLK.PSCTRL = CLK_PSADIV0_bm | CLK_PSADIV1_bm;
+
+#elif F_CPU == 8000000
+  OSC.PLLCTRL = OSC_PLLSRC_RC2M_gc | OSC_PLLFAC3_bm;
+  OSC.CTRL |= OSC_PLLEN_bm;
+  while (0 == (OSC.STATUS & OSC_PLLRDY_bm));
+  CONFIGURATION_CHANGE_PROTECTION;
+  CLK.PSCTRL = CLK_PSADIV0_bm;
+
+#elif F_CPU == 12000000
+  OSC.PLLCTRL = OSC_PLLSRC_RC2M_gc | OSC_PLLFAC3_bm | OSC_PLLFAC2_bm;
+  OSC.CTRL |= OSC_PLLEN_bm;
+  while (0 == (OSC.STATUS & OSC_PLLRDY_bm));
+  CONFIGURATION_CHANGE_PROTECTION;
+  CLK.PSCTRL = CLK_PSADIV0_bm;
+
+#elif F_CPU == 16000000
+  OSC.PLLCTRL = OSC_PLLSRC_RC2M_gc | OSC_PLLFAC3_bm;
+  OSC.CTRL |= OSC_PLLEN_bm;
+  while (0 == (OSC.STATUS & OSC_PLLRDY_bm));
+
+#elif F_CPU == 32000000
+  OSC.PLLCTRL = OSC_PLLSRC_RC2M_gc | OSC_PLLFAC4_bm;
+  OSC.CTRL |= OSC_PLLEN_bm;
+  while (0 == (OSC.STATUS & OSC_PLLRDY_bm));
+
+#else
+  #error Unsuppoerted F_CPU
 #endif
 
-#endif // _SYS_CONFIG_H_
+  CONFIGURATION_CHANGE_PROTECTION;
+  CLK.CTRL = CLK_SCLKSEL2_bm;
+}
+#endif
+
+/*****************************************************************************
+*****************************************************************************/
+void HAL_Init(void)
+{
+  //halSetSystemFrequency();
+  PMIC.CTRL = PMIC_HILVLEN_bm | PMIC_LOLVLEN_bm | PMIC_RREN_bm;
+  SYS_EnableInterrupts();
+
+  HAL_TimerInit();
+  halPhyInit();
+}
+
+/*****************************************************************************
+*****************************************************************************/
+void HAL_Delay(uint8_t us)
+{
+  HAL_TimerDelay(us);
+}

@@ -120,8 +120,6 @@
 
 #elif defined(HAL_ATXMEGA128B1)
 
-#else
-  #error Unknown HAL
 #endif
 
 #endif // _SYS_TYPES_H_

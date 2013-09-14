@@ -1,7 +1,7 @@
 /**
- * \file sysConfig.h
+ * \file halPhy.c
  *
- * \brief Main system configyration file
+ * \brief ATxmega128b1 PHY interface implementation
  *
  * Copyright (C) 2012 Atmel Corporation. All rights reserved.
  *
@@ -37,56 +37,78 @@
  *
  * \asf_license_stop
  *
- * $Id: sysConfig.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: halPhy.c 5223 2012-09-10 16:47:17Z ataradov $
  *
  */
 
-#ifndef _SYS_CONFIG_H_
-#define _SYS_CONFIG_H_
-
-#include <config.h>
-
-/*****************************************************************************
-*****************************************************************************/
-#ifndef NWK_BUFFERS_AMOUNT
-#define NWK_BUFFERS_AMOUNT                       1
-#endif
-
-#ifndef NWK_MAX_ENDPOINTS_AMOUNT
-#define NWK_MAX_ENDPOINTS_AMOUNT                 1
-#endif
-
-#ifndef NWK_DUPLICATE_REJECTION_TABLE_SIZE
-#define NWK_DUPLICATE_REJECTION_TABLE_SIZE       1
-#endif
-
-#ifndef NWK_DUPLICATE_REJECTION_TTL
-#define NWK_DUPLICATE_REJECTION_TTL              1000 // ms
-#endif
-
-#ifndef NWK_ROUTE_TABLE_SIZE
-#define NWK_ROUTE_TABLE_SIZE                     0
-#endif
-
-#ifndef NWK_ROUTE_DEFAULT_SCORE
-#define NWK_ROUTE_DEFAULT_SCORE                  3
-#endif
-
-#ifndef NWK_ACK_WAIT_TIME
-#define NWK_ACK_WAIT_TIME                        1000 // ms
-#endif
-
-//#define NWK_ENABLE_ROUTING
-//#define NWK_ENABLE_SECURITY
-
-#ifndef SYS_SECURITY_MODE
-#define SYS_SECURITY_MODE                        0
-#endif
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdbool.h>
+#include "halPhy.h"
+#include "hal.h"
+#include "phy.h"
 
 /*****************************************************************************
 *****************************************************************************/
-#if defined(NWK_ENABLE_SECURITY) && (SYS_SECURITY_MODE == 0)
-  #define PHY_ENABLE_AES_MODULE
+uint8_t HAL_PhySpiWriteByte(uint8_t value)
+{
+  return HAL_PhySpiWriteByteInline(value);
+}
+
+/*****************************************************************************
+*****************************************************************************/
+void HAL_PhyReset(void)
+{
+  HAL_GPIO_PHY_RST_clr();
+  HAL_Delay(10);
+  HAL_GPIO_PHY_RST_set();
+}
+
+/*****************************************************************************
+*****************************************************************************/
+void halPhyInit(void)
+{
+  HAL_GPIO_PHY_SLP_TR_out();
+  HAL_GPIO_PHY_RST_out();
+  HAL_GPIO_PHY_IRQ_in();
+  HAL_GPIO_PHY_CS_out();
+  HAL_GPIO_PHY_MISO_in();
+  HAL_GPIO_PHY_MOSI_out();
+  HAL_GPIO_PHY_SCK_out();
+
+#if F_CPU == 4000000 || F_CPU == 8000000 || F_CPU == 12000000
+  SPIC.CTRL = SPI_ENABLE_bm | SPI_MASTER_bm | SPI_CLK2X_bm;
+#elif F_CPU == 16000000
+  SPIC.CTRL = SPI_ENABLE_bm | SPI_MASTER_bm;
+#elif F_CPU == 32000000
+  SPIC.CTRL = SPI_ENABLE_bm | SPI_MASTER_bm | SPI_CLK2X_bm | SPI_PRESCALER0_bm;
+#else
+  #error Unsupported F_CPU
 #endif
 
-#endif // _SYS_CONFIG_H_
+#if defined(PLATFORM_MR16_BOARD)
+  PORTC.INT0MASK = (1 << 3);
+  PORTC.INTCTRL = PORT_INT0LVL_HI_gc;
+  PORTC.PIN3CTRL = (uint8_t)PORT_OPC_PULLDOWN_gc | PORT_ISC_RISING_gc;
+#elif defined(PLATFORM_TIDMARSH_NODE)
+  PORTD.INT0MASK = (1 << 0);
+  PORTD.INTCTRL = PORT_INT0LVL_HI_gc;
+  PORTD.PIN0CTRL = (uint8_t)PORT_OPC_PULLDOWN_gc | PORT_ISC_RISING_gc;
+#else
+  #error Unknown board/platform
+#endif
+}
+
+/*****************************************************************************
+*****************************************************************************/
+#if defined(PLATFORM_MR16_BOARD)
+ISR(PORTC_INT0_vect)
+{
+  phyInterruptHandler();
+}
+#elif defined(PLATFORM_TIDMARSH_NODE)
+ISR(PORTD_INT0_vect)
+{
+  phyInterruptHandler();
+}
+#endif

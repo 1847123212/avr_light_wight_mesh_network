@@ -1,7 +1,7 @@
 /**
- * \file sysConfig.h
+ * \file halTimer.c
  *
- * \brief Main system configyration file
+ * \brief ATxmega128b1 timer implementation
  *
  * Copyright (C) 2012 Atmel Corporation. All rights reserved.
  *
@@ -37,56 +37,75 @@
  *
  * \asf_license_stop
  *
- * $Id: sysConfig.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: halTimer.c 5242 2012-09-10 18:37:05Z ataradov $
  *
  */
 
-#ifndef _SYS_CONFIG_H_
-#define _SYS_CONFIG_H_
-
-#include <config.h>
-
-/*****************************************************************************
-*****************************************************************************/
-#ifndef NWK_BUFFERS_AMOUNT
-#define NWK_BUFFERS_AMOUNT                       1
-#endif
-
-#ifndef NWK_MAX_ENDPOINTS_AMOUNT
-#define NWK_MAX_ENDPOINTS_AMOUNT                 1
-#endif
-
-#ifndef NWK_DUPLICATE_REJECTION_TABLE_SIZE
-#define NWK_DUPLICATE_REJECTION_TABLE_SIZE       1
-#endif
-
-#ifndef NWK_DUPLICATE_REJECTION_TTL
-#define NWK_DUPLICATE_REJECTION_TTL              1000 // ms
-#endif
-
-#ifndef NWK_ROUTE_TABLE_SIZE
-#define NWK_ROUTE_TABLE_SIZE                     0
-#endif
-
-#ifndef NWK_ROUTE_DEFAULT_SCORE
-#define NWK_ROUTE_DEFAULT_SCORE                  3
-#endif
-
-#ifndef NWK_ACK_WAIT_TIME
-#define NWK_ACK_WAIT_TIME                        1000 // ms
-#endif
-
-//#define NWK_ENABLE_ROUTING
-//#define NWK_ENABLE_SECURITY
-
-#ifndef SYS_SECURITY_MODE
-#define SYS_SECURITY_MODE                        0
-#endif
+#include <stdint.h>
+#include "hal.h"
+#include "halTimer.h"
 
 /*****************************************************************************
 *****************************************************************************/
-#if defined(NWK_ENABLE_SECURITY) && (SYS_SECURITY_MODE == 0)
-  #define PHY_ENABLE_AES_MODULE
+#define TIMER_PRESCALER     8
+
+/*****************************************************************************
+*****************************************************************************/
+volatile uint8_t halTimerIrqCount;
+static volatile uint8_t halTimerDelayInt;
+
+/*****************************************************************************
+*****************************************************************************/
+void HAL_TimerInit(void)
+{
+  halTimerIrqCount = 0;
+
+  TCC1.PER = ((F_CPU / 1000ul) / TIMER_PRESCALER) * HAL_TIMER_INTERVAL;
+  TCC1.CTRLB = TC_WGMODE_NORMAL_gc;
+  TCC1.CTRLA = TC_CLKSEL_DIV8_gc;
+  TCC1.INTCTRLA = TC_OVFINTLVL_LO_gc;
+}
+
+/*****************************************************************************
+*****************************************************************************/
+void HAL_TimerDelay(uint16_t us)
+{
+  PRAGMA(diag_suppress=Pa082);
+
+#if F_CPU == 4000000
+  us >>= 1;
+#elif F_CPU == 8000000
+  // Empty
+#elif F_CPU == 12000000
+  us += (us >> 1);
+#elif F_CPU == 16000000
+  us <<= 1;
+#elif F_CPU == 32000000
+  us <<= 2;
 #endif
 
-#endif // _SYS_CONFIG_H_
+  TCC1.CCB = TCC1.CNT + us;
+  if (TCC1.CCB > TCC1.PER)
+    TCC1.CCB -= TCC1.PER;
+
+  halTimerDelayInt = 0;
+  TCC1.INTCTRLB = TC_CCBINTLVL_LO_gc;
+  while (0 == halTimerDelayInt);
+  TCC1.INTCTRLB = TC_CCBINTLVL_OFF_gc;
+
+  PRAGMA(diag_default=Pa082);
+}
+
+/*****************************************************************************
+*****************************************************************************/
+ISR(TCC1_OVF_vect)
+{
+  halTimerIrqCount++;
+}
+
+/*****************************************************************************
+*****************************************************************************/
+ISR(TCC1_CCB_vect)
+{
+  halTimerDelayInt = 1;
+}

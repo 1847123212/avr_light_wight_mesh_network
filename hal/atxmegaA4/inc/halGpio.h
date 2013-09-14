@@ -1,7 +1,7 @@
 /**
- * \file sysConfig.h
+ * \file halGpio.h
  *
- * \brief Main system configyration file
+ * \brief ATxmega128b1 GPIO interface
  *
  * Copyright (C) 2012 Atmel Corporation. All rights reserved.
  *
@@ -37,56 +37,24 @@
  *
  * \asf_license_stop
  *
- * $Id: sysConfig.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: halGpio.h 5223 2012-09-10 16:47:17Z ataradov $
  *
  */
 
-#ifndef _SYS_CONFIG_H_
-#define _SYS_CONFIG_H_
+#ifndef _HAL_GPIO_H_
+#define _HAL_GPIO_H_
 
-#include <config.h>
+#include "sysTypes.h"
 
-/*****************************************************************************
-*****************************************************************************/
-#ifndef NWK_BUFFERS_AMOUNT
-#define NWK_BUFFERS_AMOUNT                       1
-#endif
+#define HAL_GPIO_PIN(name, port, bit) \
+  INLINE void    HAL_GPIO_##name##_set()      { PORT##port.OUTSET = (1 << bit); } \
+  INLINE void    HAL_GPIO_##name##_clr()      { PORT##port.OUTCLR = (1 << bit); } \
+  INLINE void    HAL_GPIO_##name##_toggle()   { PORT##port.OUTTGL = (1 << bit); } \
+  INLINE void    HAL_GPIO_##name##_in()       { PORT##port.DIRCLR = (1 << bit); } \
+  INLINE void    HAL_GPIO_##name##_out()      { PORT##port.DIRSET = (1 << bit); } \
+  INLINE void    HAL_GPIO_##name##_pullup()   { PORT##port.PIN##bit##CTRL = PORT_OPC_PULLUP_gc; } \
+  INLINE void    HAL_GPIO_##name##_pulldown() { PORT##port.PIN##bit##CTRL = PORT_OPC_PULLDOWN_gc; } \
+  INLINE uint8_t HAL_GPIO_##name##_read()     { return (PORT##port.IN & (1 << bit)) != 0; } \
+  INLINE uint8_t HAL_GPIO_##name##_state()    { return (PORT##port.DIR & (1 << bit)) != 0; }
 
-#ifndef NWK_MAX_ENDPOINTS_AMOUNT
-#define NWK_MAX_ENDPOINTS_AMOUNT                 1
-#endif
-
-#ifndef NWK_DUPLICATE_REJECTION_TABLE_SIZE
-#define NWK_DUPLICATE_REJECTION_TABLE_SIZE       1
-#endif
-
-#ifndef NWK_DUPLICATE_REJECTION_TTL
-#define NWK_DUPLICATE_REJECTION_TTL              1000 // ms
-#endif
-
-#ifndef NWK_ROUTE_TABLE_SIZE
-#define NWK_ROUTE_TABLE_SIZE                     0
-#endif
-
-#ifndef NWK_ROUTE_DEFAULT_SCORE
-#define NWK_ROUTE_DEFAULT_SCORE                  3
-#endif
-
-#ifndef NWK_ACK_WAIT_TIME
-#define NWK_ACK_WAIT_TIME                        1000 // ms
-#endif
-
-//#define NWK_ENABLE_ROUTING
-//#define NWK_ENABLE_SECURITY
-
-#ifndef SYS_SECURITY_MODE
-#define SYS_SECURITY_MODE                        0
-#endif
-
-/*****************************************************************************
-*****************************************************************************/
-#if defined(NWK_ENABLE_SECURITY) && (SYS_SECURITY_MODE == 0)
-  #define PHY_ENABLE_AES_MODULE
-#endif
-
-#endif // _SYS_CONFIG_H_
+#endif // _HAL_GPIO_H_
