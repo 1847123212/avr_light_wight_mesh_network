@@ -3,7 +3,7 @@
  *
  * \brief ATMEGA256RFR2 PHY interface
  *
- * Copyright (C) 2012 Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,27 +37,26 @@
  *
  * \asf_license_stop
  *
- * $Id: phy.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: phy.h 7863 2013-05-13 20:14:34Z ataradov $
  *
  */
 
 #ifndef _PHY_H_
 #define _PHY_H_
 
+/*- Includes ---------------------------------------------------------------*/
 #include <stdint.h>
 #include <stdbool.h>
 #include "sysConfig.h"
 #include "atmega256rfr2.h"
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Definitions ------------------------------------------------------------*/
 #define PHY_RSSI_BASE_VAL                  (-90)
 
 #define PHY_HAS_RANDOM_NUMBER_GENERATOR
 #define PHY_HAS_AES_MODULE
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Types ------------------------------------------------------------------*/
 typedef struct PHY_DataInd_t
 {
   uint8_t    *data;
@@ -66,14 +65,14 @@ typedef struct PHY_DataInd_t
   int8_t     rssi;
 } PHY_DataInd_t;
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Prototypes -------------------------------------------------------------*/
 void PHY_Init(void);
 void PHY_SetRxState(bool rx);
 void PHY_SetChannel(uint8_t channel);
 void PHY_SetBand(uint8_t band);
 void PHY_SetPanId(uint16_t panId);
 void PHY_SetShortAddr(uint16_t addr);
+void PHY_SetTxPower(uint8_t txPower);
 bool PHY_Busy(void);
 void PHY_Sleep(void);
 void PHY_Wakeup(void);
@@ -98,4 +97,3 @@ void PHY_EdConf(int8_t ed);
 #endif
 
 #endif // _PHY_H_
-

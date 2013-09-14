@@ -3,7 +3,7 @@
  *
  * \brief ATxmega128b1 HAL interface
  *
- * Copyright (C) 2012 Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,17 +37,17 @@
  *
  * \asf_license_stop
  *
- * $Id: hal.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: hal.h 7863 2013-05-13 20:14:34Z ataradov $
  *
  */
 
 #ifndef _HAL_H_
 #define _HAL_H_
 
+/*- Includes ---------------------------------------------------------------*/
 #include "sysTypes.h"
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Prototypes -------------------------------------------------------------*/
 void HAL_Init(void);
 void HAL_Delay(uint8_t us);
 

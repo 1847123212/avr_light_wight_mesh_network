@@ -3,7 +3,7 @@
  *
  * \brief Main system configyration file
  *
- * Copyright (C) 2012 Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,27 +37,23 @@
  *
  * \asf_license_stop
  *
- * $Id: sysConfig.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: sysConfig.h 7863 2013-05-13 20:14:34Z ataradov $
  *
  */
 
 #ifndef _SYS_CONFIG_H_
 #define _SYS_CONFIG_H_
 
+/*- Includes ---------------------------------------------------------------*/
 #include "config.h"
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Definitions ------------------------------------------------------------*/
 #ifndef NWK_BUFFERS_AMOUNT
-#define NWK_BUFFERS_AMOUNT                       1
-#endif
-
-#ifndef NWK_MAX_ENDPOINTS_AMOUNT
-#define NWK_MAX_ENDPOINTS_AMOUNT                 1
+#define NWK_BUFFERS_AMOUNT                       5
 #endif
 
 #ifndef NWK_DUPLICATE_REJECTION_TABLE_SIZE
-#define NWK_DUPLICATE_REJECTION_TABLE_SIZE       1
+#define NWK_DUPLICATE_REJECTION_TABLE_SIZE       10
 #endif
 
 #ifndef NWK_DUPLICATE_REJECTION_TTL
@@ -65,7 +61,7 @@
 #endif
 
 #ifndef NWK_ROUTE_TABLE_SIZE
-#define NWK_ROUTE_TABLE_SIZE                     0
+#define NWK_ROUTE_TABLE_SIZE                     10
 #endif
 
 #ifndef NWK_ROUTE_DEFAULT_SCORE
@@ -76,15 +72,29 @@
 #define NWK_ACK_WAIT_TIME                        1000 // ms
 #endif
 
+#ifndef NWK_GROUPS_AMOUNT
+#define NWK_GROUPS_AMOUNT                        10
+#endif
+
+#ifndef NWK_ROUTE_DISCOVERY_TABLE_SIZE
+#define NWK_ROUTE_DISCOVERY_TABLE_SIZE           5
+#endif
+
+#ifndef NWK_ROUTE_DISCOVERY_TIMEOUT
+#define NWK_ROUTE_DISCOVERY_TIMEOUT              1000 // ms
+#endif
+
 //#define NWK_ENABLE_ROUTING
 //#define NWK_ENABLE_SECURITY
+//#define NWK_ENABLE_MULTICAST
+//#define NWK_ENABLE_ROUTE_DISCOVERY
+//#define NWK_ENABLE_SECURE_COMMANDS
 
 #ifndef SYS_SECURITY_MODE
 #define SYS_SECURITY_MODE                        0
 #endif
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Sanity checks ----------------------------------------------------------*/
 #if defined(NWK_ENABLE_SECURITY) && (SYS_SECURITY_MODE == 0)
   #define PHY_ENABLE_AES_MODULE
 #endif

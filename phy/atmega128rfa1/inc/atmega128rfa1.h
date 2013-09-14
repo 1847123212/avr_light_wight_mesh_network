@@ -3,7 +3,7 @@
  *
  * \brief ATMEGA128RFA1 registers description
  *
- * Copyright (C) 2012 Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,21 +37,21 @@
  *
  * \asf_license_stop
  *
- * $Id: atmega128rfa1.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: atmega128rfa1.h 7863 2013-05-13 20:14:34Z ataradov $
  *
  */
 
 #ifndef _ATMEGA128RFA1_H_
 #define _ATMEGA128RFA1_H_
 
+/*- Includes ---------------------------------------------------------------*/
 #include <sysTypes.h>
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Definitions ------------------------------------------------------------*/
 #define AES_BLOCK_SIZE                 16
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Types ------------------------------------------------------------------*/
+
 // Typed memory access macro
 #define MMIO_REG(mem_addr, type) (*(volatile type *)(mem_addr))
 

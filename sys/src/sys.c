@@ -3,7 +3,7 @@
  *
  * \brief Main system routines implementation
  *
- * Copyright (C) 2012 Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,17 +37,21 @@
  *
  * \asf_license_stop
  *
- * $Id: sys.c 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: sys.c 8410 2013-08-08 16:59:55Z ataradov $
  *
  */
 
+/*- Includes ---------------------------------------------------------------*/
 #include "sysConfig.h"
 #include "phy.h"
 #include "nwk.h"
 #include "hal.h"
+#include "sys.h"
 #include "sysTimer.h"
 
-/*****************************************************************************
+/*- Implementations --------------------------------------------------------*/
+
+/*************************************************************************//**
 *****************************************************************************/
 void SYS_Init(void)
 {
@@ -57,7 +61,7 @@ void SYS_Init(void)
   NWK_Init();
 }
 
-/*****************************************************************************
+/*************************************************************************//**
 *****************************************************************************/
 void SYS_TaskHandler(void)
 {

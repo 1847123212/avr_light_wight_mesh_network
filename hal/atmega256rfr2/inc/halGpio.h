@@ -3,7 +3,7 @@
  *
  * \brief ATmega256fr2 GPIO interface
  *
- * Copyright (C) 2012 Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,23 +37,25 @@
  *
  * \asf_license_stop
  *
- * $Id: halGpio.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: halGpio.h 8410 2013-08-08 16:59:55Z ataradov $
  *
  */
 
 #ifndef _HAL_GPIO_H_
 #define _HAL_GPIO_H_
 
+/*- Includes ---------------------------------------------------------------*/
 #include "sysTypes.h"
 
+/*- Definitions ------------------------------------------------------------*/
 #define HAL_GPIO_PIN(name, port, bit) \
-  INLINE void    HAL_GPIO_##name##_set()      { PORT##port |= (1 << bit); } \
-  INLINE void    HAL_GPIO_##name##_clr()      { PORT##port &= ~(1 << bit); } \
-  INLINE void    HAL_GPIO_##name##_toggle()   { PORT##port ^= (1 << bit); } \
-  INLINE void    HAL_GPIO_##name##_in()       { DDR##port &= ~(1 << bit); PORT##port &= ~(1 << bit); } \
-  INLINE void    HAL_GPIO_##name##_out()      { DDR##port |= (1 << bit); } \
-  INLINE void    HAL_GPIO_##name##_pullup()   { PORT##port |= (1 << bit); } \
-  INLINE uint8_t HAL_GPIO_##name##_read()     { return (PIN##port & (1 << bit)) != 0; } \
-  INLINE uint8_t HAL_GPIO_##name##_state()    { return (DDR##port & (1 << bit)) != 0; }
+  INLINE void    HAL_GPIO_##name##_set(void)      { PORT##port |= (1 << bit); } \
+  INLINE void    HAL_GPIO_##name##_clr(void)      { PORT##port &= ~(1 << bit); } \
+  INLINE void    HAL_GPIO_##name##_toggle(void)   { PORT##port ^= (1 << bit); } \
+  INLINE void    HAL_GPIO_##name##_in(void)       { DDR##port &= ~(1 << bit); PORT##port &= ~(1 << bit); } \
+  INLINE void    HAL_GPIO_##name##_out(void)      { DDR##port |= (1 << bit); } \
+  INLINE void    HAL_GPIO_##name##_pullup(void)   { PORT##port |= (1 << bit); } \
+  INLINE uint8_t HAL_GPIO_##name##_read(void)     { return (PIN##port & (1 << bit)) != 0; } \
+  INLINE uint8_t HAL_GPIO_##name##_state(void)    { return (DDR##port & (1 << bit)) != 0; }
 
 #endif // _HAL_GPIO_H_

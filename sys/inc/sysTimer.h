@@ -3,7 +3,7 @@
  *
  * \brief System timer interface
  *
- * Copyright (C) 2012 Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,18 +37,18 @@
  *
  * \asf_license_stop
  *
- * $Id: sysTimer.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: sysTimer.h 7863 2013-05-13 20:14:34Z ataradov $
  *
  */
 
 #ifndef _SYS_TIMER_H_
 #define _SYS_TIMER_H_
 
+/*- Includes ---------------------------------------------------------------*/
 #include <stdint.h>
 #include <stdbool.h>
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Types ------------------------------------------------------------------*/
 typedef enum SYS_TimerMode_t
 {
   SYS_TIMER_INTERVAL_MODE,
@@ -67,8 +67,7 @@ typedef struct SYS_Timer_t
   void                 (*handler)(struct SYS_Timer_t *timer);
 } SYS_Timer_t;
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Prototypes -------------------------------------------------------------*/
 void SYS_TimerInit(void);
 void SYS_TimerStart(SYS_Timer_t *timer);
 void SYS_TimerStop(SYS_Timer_t *timer);

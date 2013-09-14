@@ -3,7 +3,7 @@
  *
  * \brief ATxmega128b1 GPIO interface
  *
- * Copyright (C) 2012 Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,24 +37,26 @@
  *
  * \asf_license_stop
  *
- * $Id: halGpio.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: halGpio.h 8410 2013-08-08 16:59:55Z ataradov $
  *
  */
 
 #ifndef _HAL_GPIO_H_
 #define _HAL_GPIO_H_
 
+/*- Includes ---------------------------------------------------------------*/
 #include "sysTypes.h"
 
+/*- Definitions ------------------------------------------------------------*/
 #define HAL_GPIO_PIN(name, port, bit) \
-  INLINE void    HAL_GPIO_##name##_set()      { PORT##port.OUTSET = (1 << bit); } \
-  INLINE void    HAL_GPIO_##name##_clr()      { PORT##port.OUTCLR = (1 << bit); } \
-  INLINE void    HAL_GPIO_##name##_toggle()   { PORT##port.OUTTGL = (1 << bit); } \
-  INLINE void    HAL_GPIO_##name##_in()       { PORT##port.DIRCLR = (1 << bit); } \
-  INLINE void    HAL_GPIO_##name##_out()      { PORT##port.DIRSET = (1 << bit); } \
-  INLINE void    HAL_GPIO_##name##_pullup()   { PORT##port.PIN##bit##CTRL = PORT_OPC_PULLUP_gc; } \
-  INLINE void    HAL_GPIO_##name##_pulldown() { PORT##port.PIN##bit##CTRL = PORT_OPC_PULLDOWN_gc; } \
-  INLINE uint8_t HAL_GPIO_##name##_read()     { return (PORT##port.IN & (1 << bit)) != 0; } \
-  INLINE uint8_t HAL_GPIO_##name##_state()    { return (PORT##port.DIR & (1 << bit)) != 0; }
+  INLINE void    HAL_GPIO_##name##_set(void)      { PORT##port.OUTSET = (1 << bit); } \
+  INLINE void    HAL_GPIO_##name##_clr(void)      { PORT##port.OUTCLR = (1 << bit); } \
+  INLINE void    HAL_GPIO_##name##_toggle(void)   { PORT##port.OUTTGL = (1 << bit); } \
+  INLINE void    HAL_GPIO_##name##_in(void)       { PORT##port.DIRCLR = (1 << bit); } \
+  INLINE void    HAL_GPIO_##name##_out(void)      { PORT##port.DIRSET = (1 << bit); } \
+  INLINE void    HAL_GPIO_##name##_pullup(void)   { PORT##port.PIN##bit##CTRL = PORT_OPC_PULLUP_gc; } \
+  INLINE void    HAL_GPIO_##name##_pulldown(void) { PORT##port.PIN##bit##CTRL = PORT_OPC_PULLDOWN_gc; } \
+  INLINE uint8_t HAL_GPIO_##name##_read(void)     { return (PORT##port.IN & (1 << bit)) != 0; } \
+  INLINE uint8_t HAL_GPIO_##name##_state(void)    { return (PORT##port.DIR & (1 << bit)) != 0; }
 
 #endif // _HAL_GPIO_H_

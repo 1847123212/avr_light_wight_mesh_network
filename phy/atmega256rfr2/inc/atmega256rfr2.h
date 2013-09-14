@@ -3,7 +3,7 @@
  *
  * \brief ATMEGA256RFR2 registers description
  *
- * Copyright (C) 2012 Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,21 +37,21 @@
  *
  * \asf_license_stop
  *
- * $Id: atmega256rfr2.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: atmega256rfr2.h 7863 2013-05-13 20:14:34Z ataradov $
  *
  */
 
 #ifndef _ATMEGA256RFR2_H_
 #define _ATMEGA256RFR2_H_
 
+/*- Includes ---------------------------------------------------------------*/
 #include <sysTypes.h>
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Definitions ------------------------------------------------------------*/
 #define AES_BLOCK_SIZE                 16
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Types ------------------------------------------------------------------*/
+
 // Typed memory access macro
 #define MMIO_REG(mem_addr, type) (*(volatile type *)(mem_addr))
 
@@ -144,8 +144,7 @@ struct __struct_TRX_CTRL_1_REG
 struct __struct_PHY_TX_PWR_REG
 {
   uint8_t txPwr   : 4; // Transmit Power Setting
-  uint8_t paLt    : 2; // Power Amplifier Lead Time
-  uint8_t paBufLt : 2; // Power Amplifier Buffer Lead Time
+  uint8_t         : 4;
 };
 
 enum // txPwr values

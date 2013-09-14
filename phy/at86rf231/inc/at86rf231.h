@@ -3,7 +3,7 @@
  *
  * \brief AT86RF231 registers description and interface
  *
- * Copyright (C) 2012 Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,24 +37,23 @@
  *
  * \asf_license_stop
  *
- * $Id: at86rf231.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: at86rf231.h 7863 2013-05-13 20:14:34Z ataradov $
  *
  */
 
 #ifndef _AT86RF231_H_
 #define _AT86RF231_H_
 
+/*- Includes ---------------------------------------------------------------*/
 #include <stdint.h>
 #include <stdbool.h>
 #include "halPhy.h"
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Definitions ------------------------------------------------------------*/
 #define AES_BLOCK_SIZE                 16
 #define AES_CORE_CYCLE_TIME            24 // us
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Types ------------------------------------------------------------------*/
 enum
 {
   TRAC_STATUS_SUCCESS                = 0,
@@ -187,13 +186,14 @@ typedef enum PHY_State_t
   PHY_STATE_ED_DONE,
 } PHY_State_t;
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Variables --------------------------------------------------------------*/
 extern volatile PHY_State_t phyState;
 extern volatile uint8_t     phyTxStatus;
 extern volatile int8_t      phyRxRssi;
 
-/*****************************************************************************
+/*- Implementations --------------------------------------------------------*/
+
+/*************************************************************************//**
 *****************************************************************************/
 INLINE void phyWriteRegisterInline(uint8_t reg, uint8_t value)
 {
@@ -203,7 +203,7 @@ INLINE void phyWriteRegisterInline(uint8_t reg, uint8_t value)
   HAL_PhySpiDeselect();
 }
 
-/*****************************************************************************
+/*************************************************************************//**
 *****************************************************************************/
 INLINE uint8_t phyReadRegisterInline(uint8_t reg)
 {
@@ -217,7 +217,7 @@ INLINE uint8_t phyReadRegisterInline(uint8_t reg)
   return value;
 }
 
-/*****************************************************************************
+/*************************************************************************//**
 *****************************************************************************/
 INLINE void phyInterruptHandler(void)
 {
@@ -229,8 +229,8 @@ INLINE void phyInterruptHandler(void)
 
   if (PHY_STATE_TX_WAIT_END == phyState)
   {
-    phyWriteRegisterInline(TRX_STATE_REG, TRX_CMD_PLL_ON);
     phyTxStatus = (phyReadRegisterInline(TRX_STATE_REG) >> 5) & 0x07;
+    phyWriteRegisterInline(TRX_STATE_REG, TRX_CMD_PLL_ON);
     phyState = PHY_STATE_TX_CONFIRM;
   }
   else if (PHY_STATE_IDLE == phyState)

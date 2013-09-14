@@ -3,7 +3,7 @@
  *
  * \brief Network layer public interface
  *
- * Copyright (C) 2012 Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,24 +37,31 @@
  *
  * \asf_license_stop
  *
- * $Id: nwk.h 5223 2012-09-10 16:47:17Z ataradov $
+ * $Id: nwk.h 7863 2013-05-13 20:14:34Z ataradov $
  *
  */
 
 #ifndef _NWK_H_
 #define _NWK_H_
 
+/*- Includes ---------------------------------------------------------------*/
 #include <stdint.h>
 #include <stdbool.h>
 #include "sysConfig.h"
+#include "nwkRoute.h"
+#include "nwkGroup.h"
+#include "nwkSecurity.h"
+#include "nwkDataReq.h"
 
-/*****************************************************************************
-*****************************************************************************/
+/*- Definitions ------------------------------------------------------------*/
 #define NWK_MAX_PAYLOAD_SIZE            (127 - 16/*NwkFrameHeader_t*/ - 2/*crc*/)
-#define NWK_MAX_SECURED_PAYLOAD_SIZE    (127 - 16/*NwkFrameHeader_t*/ - 2/*crc*/ - 4/*mic*/)
 
-/*****************************************************************************
-*****************************************************************************/
+#define NWK_BROADCAST_PANID             0xffff
+#define NWK_BROADCAST_ADDR              0xffff
+
+#define NWK_ENDPOINTS_AMOUNT            16
+
+/*- Types ------------------------------------------------------------------*/
 typedef enum
 {
   NWK_SUCCESS_STATUS                      = 0x00,
@@ -62,89 +69,37 @@ typedef enum
   NWK_OUT_OF_MEMORY_STATUS                = 0x02,
 
   NWK_NO_ACK_STATUS                       = 0x10,
+  NWK_NO_ROUTE_STATUS                     = 0x11,
 
   NWK_PHY_CHANNEL_ACCESS_FAILURE_STATUS   = 0x20,
   NWK_PHY_NO_ACK_STATUS                   = 0x21,
 } NWK_Status_t;
 
-enum
+typedef struct NwkIb_t
 {
-  NWK_OPT_ACK_REQUEST          = 1 << 0,
-  NWK_OPT_ENABLE_SECURITY      = 1 << 1,
-  NWK_OPT_BROADCAST_PAN_ID     = 1 << 2,
-  NWK_OPT_LINK_LOCAL           = 1 << 3,
-};
+  uint16_t     addr;
+  uint16_t     panId;
+  uint8_t      nwkSeqNum;
+  uint8_t      macSeqNum;
+  bool         (*endpoint[NWK_ENDPOINTS_AMOUNT])(NWK_DataInd_t *ind);
+#ifdef NWK_ENABLE_SECURITY
+  uint32_t     key[4];
+#endif
+} NwkIb_t;
 
-enum
-{
-  NWK_IND_OPT_ACK_REQUESTED     = 1 << 0,
-  NWK_IND_OPT_SECURED           = 1 << 1,
-  NWK_IND_OPT_BROADCAST         = 1 << 2,
-  NWK_IND_OPT_LOCAL             = 1 << 3,
-  NWK_IND_OPT_BROADCAST_PAN_ID  = 1 << 4,
-  NWK_IND_OPT_LINK_LOCAL        = 1 << 5,
-};
+/*- Variables --------------------------------------------------------------*/
+extern NwkIb_t nwkIb;
 
-enum
-{
-  NWK_ACK_CONTROL_NONE         = 0,
-  NWK_ACK_CONTROL_PENDING      = 1 << 0,
-};
-
-typedef struct NWK_DataReq_t
-{
-  // service fields
-  void         *next;
-  void         *frame;
-  uint8_t      state;
-
-  // request parameters
-  uint16_t     dstAddr;
-  uint8_t      dstEndpoint;
-  uint8_t      srcEndpoint;
-  uint8_t      options;
-
-  uint8_t      *data;
-  uint8_t      size;
-
-  void         (*confirm)(struct NWK_DataReq_t *req);
-
-  // confirmation parameters
-  uint8_t      status;
-  uint8_t      control;
-} NWK_DataReq_t;
-
-typedef struct NWK_DataInd_t
-{
-  uint16_t     srcAddr;
-  uint8_t      srcEndpoint;
-  uint8_t      dstEndpoint;
-  uint8_t      options;
-  uint8_t      *data;
-  uint8_t      size;
-  uint8_t      lqi;
-  int8_t       rssi;
-} NWK_DataInd_t;
-
-/*****************************************************************************
-*****************************************************************************/
+/*- Prototypes -------------------------------------------------------------*/
 void NWK_Init(void);
 void NWK_SetAddr(uint16_t addr);
 void NWK_SetPanId(uint16_t panId);
 void NWK_OpenEndpoint(uint8_t id, bool (*handler)(NWK_DataInd_t *ind));
-#ifdef NWK_ENABLE_SECURITY
-void NWK_SetSecurityKey(uint8_t *key);
-#endif
 bool NWK_Busy(void);
 void NWK_SleepReq(void);
 void NWK_WakeupReq(void);
-void NWK_DataReq(NWK_DataReq_t *req);
-void NWK_SetAckControl(uint8_t control);
 void NWK_TaskHandler(void);
 
-#ifdef NWK_ENABLE_ROUTING
-uint16_t NWK_RouteNextHop(uint16_t dst);
-#endif
+uint8_t NWK_LinearizeLqi(uint8_t lqi);
 
 #endif // _NWK_H_
-
