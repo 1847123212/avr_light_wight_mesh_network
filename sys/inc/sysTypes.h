@@ -45,6 +45,7 @@
 #define _SYS_TYPES_H_
 
 #include <stdint.h>
+#include <config.h>
 
 #define SYS_LW_MESH_ENV
 
