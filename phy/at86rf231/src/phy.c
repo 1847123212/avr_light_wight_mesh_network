@@ -100,6 +100,24 @@ static uint8_t       phyRxBuffer[128];
 
 /*- Implementations --------------------------------------------------------*/
 
+bool phyWaitStatus(uint8_t status, uint8_t loc) {
+  uint16_t retries = 2000;
+  uint8_t resets = 5;
+  while(resets-- > 0) {
+    while(status != (phyReadRegister(TRX_STATUS_REG) & TRX_STATUS_TRX_STATUS_MASK)) {
+      if(--retries == 0) break;
+    }
+
+    if(retries > 0) {
+      return true;
+    } else {
+      phyWriteRegister(TRX_STATE_REG, status);
+      continue;
+    }
+  }
+  return false;
+}
+
 /*************************************************************************//**
 *****************************************************************************/
 void PHY_Init(void)
@@ -107,7 +125,7 @@ void PHY_Init(void)
   HAL_PhyReset();
 
   phyWriteRegister(TRX_STATE_REG, TRX_CMD_TRX_OFF);
-  while (TRX_STATUS_TRX_OFF != (phyReadRegister(TRX_STATUS_REG) & TRX_STATUS_TRX_STATUS_MASK));
+  phyWaitStatus(TRX_STATUS_TRX_OFF, 0);
 
   phyWriteRegister(IRQ_MASK_REG, 0x00);
   phyReadRegister(IRQ_STATUS_REG);
@@ -408,11 +426,13 @@ static void phyHandleSetRequests(void)
 *****************************************************************************/
 static void phyTrxSetState(uint8_t state)
 {
+  ATOMIC_SECTION_ENTER
   phyWriteRegister(TRX_STATE_REG, TRX_CMD_FORCE_TRX_OFF);
-  while (TRX_STATUS_TRX_OFF != (phyReadRegister(TRX_STATUS_REG) & TRX_STATUS_TRX_STATUS_MASK));
+  phyWaitStatus(TRX_STATUS_TRX_OFF, 1);
 
   phyWriteRegister(TRX_STATE_REG, state);
-  while (state != (phyReadRegister(TRX_STATUS_REG) & TRX_STATUS_TRX_STATUS_MASK));
+  phyWaitStatus(state, 2);
+  ATOMIC_SECTION_LEAVE
 }
 
 /*************************************************************************//**
@@ -431,7 +451,7 @@ void PHY_TaskHandler(void)
     {
       PHY_DataConf(phyTxStatus);
 
-      while (TRX_CMD_PLL_ON != (phyReadRegister(TRX_STATUS_REG) & TRX_STATUS_TRX_STATUS_MASK));
+      phyWaitStatus(TRX_CMD_PLL_ON, 3);
       phyState = PHY_STATE_IDLE;
       phySetRxState();
     } break;
@@ -461,7 +481,7 @@ void PHY_TaskHandler(void)
       }
       PHY_DataInd(&ind);
 
-      while (TRX_CMD_PLL_ON != (phyReadRegister(TRX_STATUS_REG) & TRX_STATUS_TRX_STATUS_MASK));
+      phyWaitStatus(TRX_CMD_PLL_ON, 4);
       phyState = PHY_STATE_IDLE;
       phySetRxState();
     } break;
