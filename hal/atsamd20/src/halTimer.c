@@ -3,7 +3,7 @@
  *
  * \brief ATSAMD20 timer implementation
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2014, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: halTimer.c 8367 2013-07-25 17:18:50Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: halTimer.c 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -52,7 +55,6 @@
 
 /*- Variables --------------------------------------------------------------*/
 volatile uint8_t halTimerIrqCount;
-static volatile uint8_t halTimerDelayInt;
 
 /*- Implementations --------------------------------------------------------*/
 
@@ -60,7 +62,7 @@ static volatile uint8_t halTimerDelayInt;
 *****************************************************************************/
 static inline void halTimerSync(void)
 {
-  while (TC4_16_STATUS & TC4_16_STATUS_SYNCBUSY);
+  while (TC4->COUNT16.STATUS.bit.SYNCBUSY);
 }
 
 /*************************************************************************//**
@@ -69,57 +71,52 @@ void HAL_TimerInit(void)
 {
   halTimerIrqCount = 0;
 
-  PM_APBCMASK |= PM_APBCMASK_TC4;
+  PM->APBCMASK.reg |= PM_APBCMASK_TC4;
 
-  GCLK_CLKCTRL = GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_ID(0x15/*TC4,TC5*/) | GCLK_CLKCTRL_GEN(0);
+  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(TC4_GCLK_ID) |
+      GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN(0);
 
-  TC4_16_CTRLA = TC4_16_CTRLA_MODE(0/*16 bit*/) | TC4_16_CTRLA_WAVEGEN(1/*MFRQ*/) |
-      TC4_16_CTRLA_PRESCALER(3/*DIV8*/) | TC4_16_CTRLA_PRESCSYNC(0x1/*PRESC*/);
+  TC4->COUNT16.CTRLA.reg = TC_CTRLA_MODE_COUNT16 | TC_CTRLA_WAVEGEN_MFRQ |
+      TC_CTRLA_PRESCALER(3/*DIV8*/) | TC_CTRLA_PRESCSYNC(TC_CTRLA_PRESCSYNC_PRESC);
   halTimerSync();
 
-  TC4_16_COUNT = 0;
+  TC4->COUNT16.COUNT.reg = 0;
   halTimerSync();
 
-  TC4_16_CC0 = TIMER_TOP;
+  TC4->COUNT16.CC[0].reg = TIMER_TOP;
   halTimerSync();
 
-  TC4_16_CTRLA |= TC4_16_CTRLA_ENABLE;
+  TC4->COUNT16.CTRLA.reg |= TC_CTRLA_ENABLE;
   halTimerSync();
 
-  TC4_16_INTENSET = TC4_16_INTENSET_MC0;
-  NVIC_ISER = NVIC_ISER_TC4;
+  TC4->COUNT16.INTENSET.reg = TC_INTENSET_MC(1);
+  NVIC_EnableIRQ(TC4_IRQn);
 }
 
 /*************************************************************************//**
 *****************************************************************************/
 void HAL_TimerDelay(uint16_t us)
 {
-  uint16_t target = TC4_16_COUNT + us;
+  uint16_t target = TC4->COUNT16.COUNT.reg + us;
 
   if (target > TIMER_TOP)
     target -= TIMER_TOP;
 
-  TC4_16_CC1 = target;
+  TC4->COUNT16.INTFLAG.reg = TC_INTENSET_MC(2);
+
+  TC4->COUNT16.CC[1].reg = target;
   halTimerSync();
 
-  halTimerDelayInt = 0;
-  TC4_16_INTENSET = TC4_16_INTENSET_MC1;
-  while (0 == halTimerDelayInt);
-  TC4_16_INTENCLR = TC4_16_INTENCLR_MC1;
+  while (0 == (TC4->COUNT16.INTFLAG.reg & TC_INTFLAG_MC(2)));
 }
 
 /*************************************************************************//**
 *****************************************************************************/
 void HAL_IrqHandlerTc4(void)
 {
-  if (TC4_16_INTFLAG & TC4_16_INTFLAG_MC0)
+  if (TC4->COUNT16.INTFLAG.reg & TC_INTFLAG_MC(1))
   {
     halTimerIrqCount++;
-    TC4_16_INTFLAG = TC4_16_INTFLAG_MC0;
-  }
-  else
-  {
-    halTimerDelayInt = 1;
-    TC4_16_INTFLAG = TC4_16_INTFLAG_MC1;
+    TC4->COUNT16.INTFLAG.reg = TC_INTFLAG_MC(1);
   }
 }

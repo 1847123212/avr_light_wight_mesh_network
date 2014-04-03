@@ -3,7 +3,7 @@
  *
  * \brief AT86RF230 PHY interface
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2014, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: phy.h 7863 2013-05-13 20:14:34Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: phy.h 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -48,11 +51,9 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "sysConfig.h"
-#include "halPhy.h"
-#include "at86rf230.h"
 
 /*- Definitions ------------------------------------------------------------*/
-#define PHY_RSSI_BASE_VAL                  (-90)
+#define PHY_RSSI_BASE_VAL                     (-90)
 
 /*- Types ------------------------------------------------------------------*/
 typedef struct PHY_DataInd_t
@@ -63,6 +64,14 @@ typedef struct PHY_DataInd_t
   int8_t     rssi;
 } PHY_DataInd_t;
 
+enum
+{
+  PHY_STATUS_SUCCESS                = 0,
+  PHY_STATUS_CHANNEL_ACCESS_FAILURE = 1,
+  PHY_STATUS_NO_ACK                 = 2,
+  PHY_STATUS_ERROR                  = 3,
+};
+
 /*- Prototypes -------------------------------------------------------------*/
 void PHY_Init(void);
 void PHY_SetRxState(bool rx);
@@ -70,7 +79,6 @@ void PHY_SetChannel(uint8_t channel);
 void PHY_SetPanId(uint16_t panId);
 void PHY_SetShortAddr(uint16_t addr);
 void PHY_SetTxPower(uint8_t txPower);
-bool PHY_Busy(void);
 void PHY_Sleep(void);
 void PHY_Wakeup(void);
 void PHY_DataReq(uint8_t *data, uint8_t size);
@@ -79,8 +87,7 @@ void PHY_DataInd(PHY_DataInd_t *ind);
 void PHY_TaskHandler(void);
 
 #ifdef PHY_ENABLE_ENERGY_DETECTION
-void PHY_EdReq(void);
-void PHY_EdConf(int8_t ed);
+int8_t PHY_EdReq(void);
 #endif
 
 #endif // _PHY_H_

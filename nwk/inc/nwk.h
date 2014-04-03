@@ -3,7 +3,7 @@
  *
  * \brief Network layer public interface
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2014, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: nwk.h 7863 2013-05-13 20:14:34Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: nwk.h 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -85,6 +88,7 @@ typedef struct NwkIb_t
 #ifdef NWK_ENABLE_SECURITY
   uint32_t     key[4];
 #endif
+  uint16_t     lock;
 } NwkIb_t;
 
 /*- Variables --------------------------------------------------------------*/
@@ -96,6 +100,8 @@ void NWK_SetAddr(uint16_t addr);
 void NWK_SetPanId(uint16_t panId);
 void NWK_OpenEndpoint(uint8_t id, bool (*handler)(NWK_DataInd_t *ind));
 bool NWK_Busy(void);
+void NWK_Lock(void);
+void NWK_Unlock(void);
 void NWK_SleepReq(void);
 void NWK_WakeupReq(void);
 void NWK_TaskHandler(void);

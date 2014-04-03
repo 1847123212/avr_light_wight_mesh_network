@@ -3,7 +3,7 @@
  *
  * \brief Routing interface
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2014, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: nwkRoute.h 7863 2013-05-13 20:14:34Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: nwkRoute.h 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -82,7 +85,7 @@ void nwkRouteFrameReceived(NwkFrame_t *frame);
 void nwkRouteFrameSent(NwkFrame_t *frame);
 void nwkRoutePrepareTx(NwkFrame_t *frame);
 void nwkRouteFrame(NwkFrame_t *frame);
-void nwkRouteErrorReceived(NWK_DataInd_t *ind);
+bool nwkRouteErrorReceived(NWK_DataInd_t *ind);
 void nwkRouteUpdateEntry(uint16_t dst, uint8_t multicast, uint16_t nextHop, uint8_t lqi);
 
 #endif // NWK_ENABLE_ROUTING

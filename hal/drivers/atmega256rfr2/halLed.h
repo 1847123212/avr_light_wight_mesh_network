@@ -3,7 +3,7 @@
  *
  * \brief LEDs interface
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2014, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: halLed.h 7863 2013-05-13 20:14:34Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: halLed.h 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -54,13 +57,11 @@
   HAL_GPIO_PIN(LED1, E, 3);
   HAL_GPIO_PIN(LED2, E, 4);
 
-#elif defined(PLATFORM_XPLAINED_PRO)
+#elif defined(PLATFORM_XPLAINED_PRO_ATMEGA256RFR2)
   HAL_GPIO_PIN(LED0, B, 4);
   HAL_GPIO_PIN(LED1, B, 5); // Not on the board
   HAL_GPIO_PIN(LED2, B, 6); // Not on the board
 
-#else
-  #error Unknown platform
 #endif
 
 /*- Implementations --------------------------------------------------------*/

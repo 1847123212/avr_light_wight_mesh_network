@@ -3,7 +3,7 @@
  *
  * \brief ATmega1281 PHY interface implementation
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2014, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: halPhy.c 7863 2013-05-13 20:14:34Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: halPhy.c 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -82,23 +85,4 @@ void halPhyInit(void)
 
   SPCR = ((1 << SPE) | (1 << MSTR));
   SPSR = (1 << SPI2X);
-
-#if defined(PLATFORM_ZIGBIT)
-  EICRB |= (1 << ISC51) | (1 << ISC50);
-  EIMSK |= (1 << INT5);
-#elif defined(PLATFORM_RCB231)
-  EICRA |= (1 << ISC01) | (1 << ISC00);
-  EIMSK |= (1 << INT0);
-#endif
-}
-
-/*************************************************************************//**
-*****************************************************************************/
-#if defined(PLATFORM_ZIGBIT)
-ISR(INT5_vect)
-#elif defined(PLATFORM_RCB231)
-ISR(INT0_vect)
-#endif
-{
-  phyInterruptHandler();
 }

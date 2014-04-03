@@ -3,7 +3,7 @@
  *
  * \brief Frame buffers management implementation
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2014, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: nwkFrame.c 7863 2013-05-13 20:14:34Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: nwkFrame.c 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -83,6 +86,7 @@ NwkFrame_t *nwkFrameAlloc(void)
       memset(&nwkFrameFrames[i], 0, sizeof(NwkFrame_t));
       nwkFrameFrames[i].size = sizeof(NwkFrameHeader_t);
       nwkFrameFrames[i].payload = nwkFrameFrames[i].data + sizeof(NwkFrameHeader_t);
+      nwkIb.lock++;
       return &nwkFrameFrames[i];
     }
   }
@@ -96,6 +100,7 @@ NwkFrame_t *nwkFrameAlloc(void)
 void nwkFrameFree(NwkFrame_t *frame)
 {
   frame->state = NWK_FRAME_STATE_FREE;
+  nwkIb.lock--;
 }
 
 /*************************************************************************//**
@@ -110,14 +115,13 @@ NwkFrame_t *nwkFrameNext(NwkFrame_t *frame)
   else
     frame++;
 
-  while (NWK_FRAME_STATE_FREE == frame->state)
+  for (; frame < &nwkFrameFrames[NWK_BUFFERS_AMOUNT]; frame++)
   {
-    frame++;
-    if (frame == &nwkFrameFrames[NWK_BUFFERS_AMOUNT])
-      return NULL;
+    if (NWK_FRAME_STATE_FREE != frame->state)
+      return frame;
   }
 
-  return frame;
+  return NULL;
 }
 
 /*************************************************************************//**

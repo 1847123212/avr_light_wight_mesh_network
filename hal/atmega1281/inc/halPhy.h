@@ -3,7 +3,7 @@
  *
  * \brief ATmega1281 PHY interface
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2014, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: halPhy.h 7863 2013-05-13 20:14:34Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: halPhy.h 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -51,6 +54,7 @@
 
 /*- Definitions ------------------------------------------------------------*/
 #if defined(PLATFORM_ZIGBIT)
+  // ZigBit ATZB-24-xxx
   HAL_GPIO_PIN(PHY_RST,    A, 7);
   HAL_GPIO_PIN(PHY_IRQ,    E, 5);
   HAL_GPIO_PIN(PHY_SLP_TR, B, 4);
@@ -59,6 +63,7 @@
   HAL_GPIO_PIN(PHY_MOSI,   B, 2);
   HAL_GPIO_PIN(PHY_SCK,    B, 1);
 #elif defined(PLATFORM_RCB231)
+  // RCB231
   HAL_GPIO_PIN(PHY_RST,    B, 5);
   HAL_GPIO_PIN(PHY_IRQ,    D, 0);
   HAL_GPIO_PIN(PHY_SLP_TR, B, 4);

@@ -3,7 +3,7 @@
  *
  * \brief ATSAMD20 GPIO interface
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2014, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: halGpio.h 8410 2013-08-08 16:59:55Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: halGpio.h 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -48,20 +51,54 @@
 #include "sysTypes.h"
 
 /*- Definitions ------------------------------------------------------------*/
+#define HAL_GPIO_PORTA 0
+#define HAL_GPIO_PORTB 1
+#define HAL_GPIO_PORTC 2
+
 #define HAL_GPIO_PIN(name, port, bit) \
-  INLINE void    HAL_GPIO_##name##_set(void)      { PORT##port##_OUTSET = (1 << bit); } \
-  INLINE void    HAL_GPIO_##name##_clr(void)      { PORT##port##_OUTCLR = (1 << bit); } \
-  INLINE void    HAL_GPIO_##name##_toggle(void)   { PORT##port##_OUTTGL = (1 << bit); } \
-  INLINE void    HAL_GPIO_##name##_in(void)       { PORT##port##_DIRCLR = (1 << bit);   \
-                                                    PORT##port##_PINCFG##bit |= PORTA_PINCFG##bit##_INEN; \
-                                                    PORT##port##_PINCFG##bit &= ~PORTA_PINCFG##bit##_PULLEN; } \
-  INLINE void    HAL_GPIO_##name##_out(void)      { PORT##port##_DIRSET = (1 << bit);   \
-                                                    PORT##port##_PINCFG##bit |= PORTA_PINCFG##bit##_INEN; } \
-  INLINE void    HAL_GPIO_##name##_pullup(void)   { PORT##port##_OUTSET = (1 << bit); \
-                                                    PORT##port##_PINCFG##bit |= PORTA_PINCFG##bit##_PULLEN; } \
-  INLINE uint8_t HAL_GPIO_##name##_read(void)     { return (PORT##port##_IN & (1 << bit)) != 0; } \
-  INLINE uint8_t HAL_GPIO_##name##_state(void)    { return (PORT##port##_DIR & (1 << bit)) != 0; } \
-  INLINE void    HAL_GPIO_##name##_pmuxen(void)   { PORT##port##_PINCFG##bit |= PORTA_PINCFG##bit##_PMUXEN; } \
-  INLINE void    HAL_GPIO_##name##_pmuxdis(void)  { PORT##port##_PINCFG##bit &= ~PORTA_PINCFG##bit##_PMUXEN; }
+  INLINE void HAL_GPIO_##name##_set(void) \
+  { \
+    PORT->Group[HAL_GPIO_PORT##port].OUTSET.reg = (1 << bit); \
+  } \
+  INLINE void HAL_GPIO_##name##_clr(void) \
+  { \
+    PORT->Group[HAL_GPIO_PORT##port].OUTCLR.reg = (1 << bit); \
+  } \
+  INLINE void HAL_GPIO_##name##_toggle(void) \
+  { \
+    PORT->Group[HAL_GPIO_PORT##port].OUTTGL.reg = (1 << bit); \
+  } \
+  INLINE void HAL_GPIO_##name##_in(void) \
+  { \
+    PORT->Group[HAL_GPIO_PORT##port].DIRCLR.reg = (1 << bit); \
+    PORT->Group[HAL_GPIO_PORT##port].PINCFG[bit].reg |= PORT_PINCFG_INEN; \
+    PORT->Group[HAL_GPIO_PORT##port].PINCFG[bit].reg &= ~PORT_PINCFG_PULLEN; \
+  } \
+  INLINE void HAL_GPIO_##name##_out(void) \
+  { \
+    PORT->Group[HAL_GPIO_PORT##port].DIRSET.reg = (1 << bit); \
+    PORT->Group[HAL_GPIO_PORT##port].PINCFG[bit].reg |= PORT_PINCFG_INEN; \
+  } \
+  INLINE void HAL_GPIO_##name##_pullup(void) \
+  { \
+    PORT->Group[HAL_GPIO_PORT##port].OUTSET.reg = (1 << bit); \
+    PORT->Group[HAL_GPIO_PORT##port].PINCFG[bit].reg |= PORT_PINCFG_PULLEN; \
+  } \
+  INLINE uint8_t HAL_GPIO_##name##_read(void) \
+  { \
+   return (PORT->Group[HAL_GPIO_PORT##port].IN.reg & (1 << bit)) != 0; \
+  } \
+  INLINE uint8_t HAL_GPIO_##name##_state(void) \
+  { \
+    return (PORT->Group[HAL_GPIO_PORT##port].DIR.reg & (1 << bit)) != 0; \
+  } \
+  INLINE void HAL_GPIO_##name##_pmuxen(void) \
+  { \
+    PORT->Group[HAL_GPIO_PORT##port].PINCFG[bit].reg |= PORT_PINCFG_PMUXEN; \
+  } \
+  INLINE void HAL_GPIO_##name##_pmuxdis(void) \
+  { \
+    PORT->Group[HAL_GPIO_PORT##port].PINCFG[bit].reg &= ~PORT_PINCFG_PMUXEN; \
+  }
 
 #endif // _HAL_GPIO_H_

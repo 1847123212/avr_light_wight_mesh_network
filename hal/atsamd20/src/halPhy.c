@@ -3,7 +3,7 @@
  *
  * \brief ATSAMD20 PHY interface implementation
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2014, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: halPhy.c 8367 2013-07-25 17:18:50Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: halPhy.c 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -71,14 +74,7 @@ void HAL_PhyReset(void)
 *****************************************************************************/
 static void halPhySpiSync(void)
 {
-  while (SC2_SPI_STATUS & SC1_SPI_STATUS_SYNCBUSY);
-}
-
-/*************************************************************************//**
-*****************************************************************************/
-static void halPhyEicSync(void)
-{
-  while (EIC_STATUS & EIC_STATUS_SYNCBUSY);
+  while (SERCOM1->SPI.STATUS.bit.SYNCBUSY);
 }
 
 /*************************************************************************//**
@@ -100,40 +96,29 @@ void halPhyInit(void)
   HAL_GPIO_PHY_SCK_pmuxen();
 
   // Configure SPI
-  PORTA_PMUX8 = PORTA_PMUX8_PMUXE(2/*C*/);
-  PORTA_PMUX9 = PORTA_PMUX9_PMUXE(2/*C*/) | PORTA_PMUX9_PMUXO(2/*C*/);
+  PORT->Group[HAL_GPIO_PORTA].PMUX[9].bit.PMUXE = 2/*C*/; // MOSI
+  PORT->Group[HAL_GPIO_PORTA].PMUX[9].bit.PMUXO = 2/*C*/; // SCK
+  PORT->Group[HAL_GPIO_PORTA].PMUX[8].bit.PMUXE = 2/*C*/; // MISO
 
-  PM_APBCMASK |= PM_APBCMASK_SERCOM1;
+  PM->APBCMASK.reg |= PM_APBCMASK_SERCOM1;
 
-  GCLK_CLKCTRL = GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_ID(0x0e/*SERCOM1_CORE*/) | GCLK_CLKCTRL_GEN(0);
+  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(SERCOM1_GCLK_ID_CORE) |
+      GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN(0);
 
-  SC1_SPI_CTRLB = SC1_SPI_CTRLB_RXEN;
+  SERCOM1->SPI.CTRLB.reg = SERCOM_SPI_CTRLB_RXEN;
   halPhySpiSync();
 
-  SC1_SPI_CTRLA = SC1_SPI_CTRLA_MODE(3/*SPI master*/) | SC1_SPI_CTRLA_DOPO | SC1_SPI_CTRLA_ENABLE;
+#if F_CPU <= 16000000
+  SERCOM1->SPI.BAUD.reg = 0;
+#elif F_CPU <= 32000000
+  SERCOM1->SPI.BAUD.reg = 1;
+#elif F_CPU <= 48000000
+  SERCOM1->SPI.BAUD.reg = 2;
+#else
+  #error Unsupported frequency
+#endif
+
+  SERCOM1->SPI.CTRLA.reg = SERCOM_SPI_CTRLA_ENABLE | SERCOM_SPI_CTRLA_MODE_SPI_MASTER |
+      SERCOM_SPI_CTRLA_DIPO(0) | SERCOM_SPI_CTRLA_DOPO;
   halPhySpiSync();
-
-  // Configure EIC
-  PORTB_PMUX6 = PORTB_PMUX6_PMUXO(0/*A*/);
-
-  GCLK_CLKCTRL = GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_ID(0x03/*EIC*/) | GCLK_CLKCTRL_GEN(0);
-
-  EIC_CTRL = EIC_CTRL_ENABLE;
-  halPhyEicSync();
-
-  EIC_CONFIG1 |= EIC_CONFIG1_SENSE13(1/*rise*/);
-
-  EIC_INTENSET = 1 << HAL_PHY_IRQ_INDEX;
-  NVIC_ISER = NVIC_ISER_EIC;
-}
-
-/*************************************************************************//**
-*****************************************************************************/
-void HAL_IrqHandlerEic(void)
-{
-  if (EIC_INTFLAG & (1 << HAL_PHY_IRQ_INDEX))
-  {
-    phyInterruptHandler();
-    EIC_INTFLAG = 1 << HAL_PHY_IRQ_INDEX;
-  }
 }

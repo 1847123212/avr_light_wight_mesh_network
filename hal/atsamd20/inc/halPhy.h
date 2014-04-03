@@ -3,7 +3,7 @@
  *
  * \brief ATSAMD20 PHY interface
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2014, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: halPhy.h 8367 2013-07-25 17:18:50Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: halPhy.h 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -50,7 +53,8 @@
 #include "halGpio.h"
 
 /*- Definitions ------------------------------------------------------------*/
-#if defined(PLATFORM_XPLAINED_PRO)
+#if defined(PLATFORM_XPLAINED_PRO_SAMD20_RZ600)
+  // Rz600 radio module connected to EXT2[11:20]
   HAL_GPIO_PIN(PHY_RST,    A, 8);
   HAL_GPIO_PIN(PHY_IRQ,    B, 13);
   HAL_GPIO_PIN(PHY_SLP_TR, B, 12);
@@ -58,7 +62,15 @@
   HAL_GPIO_PIN(PHY_MISO,   A, 16);
   HAL_GPIO_PIN(PHY_MOSI,   A, 18);
   HAL_GPIO_PIN(PHY_SCK,    A, 19);
-  #define HAL_PHY_IRQ_INDEX   13
+#elif defined(PLATFORM_XPLAINED_PRO_SAMD20_REB)
+  // REBxxx-XPRO connected to EXT2
+  HAL_GPIO_PIN(PHY_RST,    A, 22);
+  HAL_GPIO_PIN(PHY_IRQ,    B, 14);
+  HAL_GPIO_PIN(PHY_SLP_TR, B, 15);
+  HAL_GPIO_PIN(PHY_CS,     A, 17);
+  HAL_GPIO_PIN(PHY_MISO,   A, 16);
+  HAL_GPIO_PIN(PHY_MOSI,   A, 18);
+  HAL_GPIO_PIN(PHY_SCK,    A, 19);
 #endif
 
 /*- Prototypes -------------------------------------------------------------*/
@@ -72,9 +84,9 @@ void halPhyInit(void);
 *****************************************************************************/
 INLINE uint8_t HAL_PhySpiWriteByteInline(uint8_t value)
 {
-  SC1_SPI_DATA = value;
-  while (!(SC1_SPI_INTFLAG & SC1_SPI_INTFLAG_RXC));
-  return SC1_SPI_DATA;
+  SERCOM1->SPI.DATA.reg = value;
+  while (!SERCOM1->SPI.INTFLAG.bit.RXC);
+  return SERCOM1->SPI.DATA.reg;
 }
 
 /*************************************************************************//**

@@ -3,7 +3,7 @@
  *
  * \brief LEDs interface
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2014, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: halLed.h 7863 2013-05-13 20:14:34Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: halLed.h 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -53,9 +56,6 @@
   HAL_GPIO_PIN(LED0, E, 2);
   HAL_GPIO_PIN(LED1, E, 3);
   HAL_GPIO_PIN(LED2, E, 4);
-
-#else
-  #error Unknown platform
 #endif
 
 /*- Implementations --------------------------------------------------------*/

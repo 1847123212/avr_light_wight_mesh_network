@@ -3,7 +3,7 @@
  *
  * \brief ATxmega128b1 PHY interface
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2014, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: halPhy.h 7863 2013-05-13 20:14:34Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: halPhy.h 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -51,6 +54,7 @@
 
 /*- Definitions ------------------------------------------------------------*/
 #if defined(PLATFORM_XPLAINED)
+  // Rz600 radio module connected to J1
   HAL_GPIO_PIN(PHY_RST,    C, 0);
   HAL_GPIO_PIN(PHY_IRQ,    C, 2);
   HAL_GPIO_PIN(PHY_SLP_TR, C, 3);

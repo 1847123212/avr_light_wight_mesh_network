@@ -3,7 +3,7 @@
  *
  * \brief ATSAMD20 HAL implementation
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2014, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: hal.c 8367 2013-07-25 17:18:50Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: hal.c 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -53,7 +56,7 @@
 void HAL_Init(void)
 {
   // Switch to 8MHz clock (disable prescaler)
-  SYSCTRL_OSC8M = (SYSCTRL_OSC8M & ~SYSCTRL_OSC8M_PRESC_MSK) | SYSCTRL_OSC8M_PRESC(0);
+  SYSCTRL->OSC8M.bit.PRESC = 0;
 
   SYS_EnableInterrupts();
 

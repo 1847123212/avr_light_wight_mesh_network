@@ -3,7 +3,7 @@
  *
  * \brief ATmega256rfr2 timer implementation
  *
- * Copyright (C) 2012-2013, Atmel Corporation. All rights reserved.
+ * Copyright (C) 2012-2014, Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: halTimer.c 7863 2013-05-13 20:14:34Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: halTimer.c 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -50,7 +53,6 @@
 
 /*- Variables --------------------------------------------------------------*/
 volatile uint8_t halTimerIrqCount;
-static volatile uint8_t halTimerDelayInt;
 
 /*- Implementations --------------------------------------------------------*/
 
@@ -76,10 +78,8 @@ void HAL_TimerDelay(uint16_t us)
   if (OCR4B > OCR4A)
     OCR4B -= OCR4A;
 
-  halTimerDelayInt = 0;
-  TIMSK4 |= (1 << OCIE4B);
-  while (0 == halTimerDelayInt);
-  TIMSK4 &= ~(1 << OCIE4B);
+  TIFR4 = (1 << OCF4B);
+  while (0 == (TIFR4 & (1 << OCF4B)));
 
   PRAGMA(diag_default=Pa082);
 }
@@ -89,11 +89,4 @@ void HAL_TimerDelay(uint16_t us)
 ISR(TIMER4_COMPA_vect)
 {
   halTimerIrqCount++;
-}
-
-/*************************************************************************//**
-*****************************************************************************/
-ISR(TIMER4_COMPB_vect)
-{
-  halTimerDelayInt = 1;
 }
