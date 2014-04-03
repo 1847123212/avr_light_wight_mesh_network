@@ -82,7 +82,7 @@ void nwkRouteFrameReceived(NwkFrame_t *frame);
 void nwkRouteFrameSent(NwkFrame_t *frame);
 void nwkRoutePrepareTx(NwkFrame_t *frame);
 void nwkRouteFrame(NwkFrame_t *frame);
-void nwkRouteErrorReceived(NWK_DataInd_t *ind);
+bool nwkRouteErrorReceived(NWK_DataInd_t *ind);
 void nwkRouteUpdateEntry(uint16_t dst, uint8_t multicast, uint16_t nextHop, uint8_t lqi);
 
 #endif // NWK_ENABLE_ROUTING

@@ -110,14 +110,13 @@ NwkFrame_t *nwkFrameNext(NwkFrame_t *frame)
   else
     frame++;
 
-  while (NWK_FRAME_STATE_FREE == frame->state)
+  for(; frame < &nwkFrameFrames[NWK_BUFFERS_AMOUNT]; frame++)
   {
-    frame++;
-    if (frame == &nwkFrameFrames[NWK_BUFFERS_AMOUNT])
-      return NULL;
+    if(NWK_FRAME_STATE_FREE != frame->state)
+      return frame;
   }
 
-  return frame;
+  return NULL;
 }
 
 /*************************************************************************//**

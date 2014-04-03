@@ -176,10 +176,13 @@ void nwkTxBroadcastFrame(NwkFrame_t *frame)
 
 /*************************************************************************//**
 *****************************************************************************/
-void nwkTxAckReceived(NWK_DataInd_t *ind)
+bool nwkTxAckReceived(NWK_DataInd_t *ind)
 {
   NwkCommandAck_t *command = (NwkCommandAck_t *)ind->data;
   NwkFrame_t *frame = NULL;
+
+  if (sizeof(NwkCommandAck_t) != ind->size)
+    return false;
 
   while (NULL != (frame = nwkFrameNext(frame)))
   {
@@ -187,9 +190,11 @@ void nwkTxAckReceived(NWK_DataInd_t *ind)
     {
       frame->state = NWK_TX_STATE_CONFIRM;
       frame->tx.control = command->control;
-      return;
+      return true;
     }
   }
+
+  return false;
 }
 
 /*************************************************************************//**

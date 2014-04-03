@@ -338,11 +338,16 @@ static void nwkRouteSendRouteError(uint16_t src, uint16_t dst, uint8_t multicast
 
 /*************************************************************************//**
 *****************************************************************************/
-void nwkRouteErrorReceived(NWK_DataInd_t *ind)
+bool nwkRouteErrorReceived(NWK_DataInd_t *ind)
 {
   NwkCommandRouteError_t *command = (NwkCommandRouteError_t *)ind->data;
 
+  if (sizeof(NwkCommandRouteError_t) != ind->size)
+    return false;
+
   nwkRouteRemove(command->dstAddr, command->multicast);
+
+  return true;
 }
 
 /*************************************************************************//**

@@ -41,6 +41,8 @@
  *
  */
 
+#include <led.h>
+
 /*- Includes ---------------------------------------------------------------*/
 #include <stdlib.h>
 #include <stdint.h>
@@ -254,6 +256,9 @@ bool nwkRouteDiscoveryRequestReceived(NWK_DataInd_t *ind)
   uint8_t linkQuality;
   bool reply = false;
 
+  if (sizeof(NwkCommandRouteRequest_t) != ind->size)
+    return false;
+
 #ifdef NWK_ENABLE_MULTICAST
   if (1 == command->multicast && NWK_GroupIsMember(command->dstAddr))
     reply = true;
@@ -338,6 +343,9 @@ bool nwkRouteDiscoveryReplyReceived(NWK_DataInd_t *ind)
   NwkCommandRouteReply_t *command = (NwkCommandRouteReply_t *)ind->data;
   NwkRouteDiscoveryTableEntry_t *entry;
   uint8_t linkQuality;
+
+  if (sizeof(NwkCommandRouteReply_t) != ind->size)
+    return false;
 
   entry = nwkRouteDiscoveryFindEntry(command->srcAddr, command->dstAddr, command->multicast);
 

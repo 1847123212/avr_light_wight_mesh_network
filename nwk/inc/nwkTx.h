@@ -62,7 +62,7 @@ enum
 void nwkTxInit(void);
 void nwkTxFrame(NwkFrame_t *frame);
 void nwkTxBroadcastFrame(NwkFrame_t *frame);
-void nwkTxAckReceived(NWK_DataInd_t *ind);
+bool nwkTxAckReceived(NWK_DataInd_t *ind);
 void nwkTxConfirm(NwkFrame_t *frame, uint8_t status);
 void nwkTxEncryptConf(NwkFrame_t *frame);
 void nwkTxTaskHandler(void);
