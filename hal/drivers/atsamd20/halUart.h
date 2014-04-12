@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: halUart.h 8367 2013-07-25 17:18:50Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: halUart.h 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 

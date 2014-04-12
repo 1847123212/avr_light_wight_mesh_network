@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: halLed.h 7863 2013-05-13 20:14:34Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: halLed.h 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -53,9 +56,6 @@
   HAL_GPIO_PIN(LED0, B, 4);
   HAL_GPIO_PIN(LED1, B, 5);
   HAL_GPIO_PIN(LED2, B, 6);
-
-#else
-  #error Unknown platform
 #endif
 
 /*- Implementations --------------------------------------------------------*/

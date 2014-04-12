@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: sysTypes.h 8375 2013-07-25 21:26:06Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: sysTypes.h 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -54,6 +57,8 @@
   #include <ioavr.h>
   #include <intrinsics.h>
   #include <pgmspace.h>
+
+  #define SYS_MCU_ARCH_AVR
 
   #define PACK
 
@@ -92,8 +97,27 @@
 */
 #else
   #if defined(HAL_ATSAMD20J18)
-    #include "atsamd20.h"
+    #define DONT_USE_CMSIS_INIT
+    #include "samd20j18.h"
 
+    #define SYS_MCU_ARCH_CORTEX_M
+
+  #elif defined(HAL_ATSAMD21J18)
+    #define DONT_USE_CMSIS_INIT
+    #include "samd21j18a.h"
+
+    #define SYS_MCU_ARCH_CORTEX_M
+
+  #else // All AVRs
+    #include <avr/io.h>
+    #include <avr/wdt.h>
+    #include <avr/interrupt.h>
+    #include <avr/pgmspace.h>
+
+    #define SYS_MCU_ARCH_AVR
+  #endif
+
+  #if defined(SYS_MCU_ARCH_CORTEX_M)
     #define PRAGMA(x)
 
     #define PACK __attribute__ ((packed))
@@ -107,12 +131,7 @@
                                      __asm volatile ("cpsid i");
     #define ATOMIC_SECTION_LEAVE   __asm volatile ("msr primask, %0" : : "r" (__atomic) ); }
 
-  #else // All AVRs
-    #include <avr/io.h>
-    #include <avr/wdt.h>
-    #include <avr/interrupt.h>
-    #include <avr/pgmspace.h>
-
+  #elif defined(SYS_MCU_ARCH_AVR)
     #define PRAGMA(x)
 
     #define PACK __attribute__ ((packed))
@@ -139,13 +158,11 @@
   #define SYS_BOOTLOADER_SIZE    2048
 
 #elif defined(HAL_ATMEGA256RFR2)
-
 #elif defined(HAL_ATXMEGA128B1)
-
+#elif defined(HAL_ATXMEGA256A3U)
 #elif defined(HAL_ATSAMD20J18)
-
+#elif defined(HAL_ATSAMD21J18)
 #elif defined(HAL_ATXMEGAA4)
-
 #else
   #error Unknown HAL
 #endif

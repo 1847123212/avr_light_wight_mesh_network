@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: nwkTx.h 7863 2013-05-13 20:14:34Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: nwkTx.h 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 

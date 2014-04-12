@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: halLed.h 8367 2013-07-25 17:18:50Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: halLed.h 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -49,13 +52,11 @@
 #include "halGpio.h"
 
 /*- Definitions ------------------------------------------------------------*/
-#if defined(PLATFORM_XPLAINED_PRO)
+#if defined(PLATFORM_XPLAINED_PRO_SAMD20_RZ600) || \
+    defined(PLATFORM_XPLAINED_PRO_SAMD20_REB)
   HAL_GPIO_PIN(LED0, A, 14);
   HAL_GPIO_PIN(LED1, B, 0);
   HAL_GPIO_PIN(LED2, B, 1);
-
-#else
-  #error Unknown platform
 #endif
 
 /*- Implementations --------------------------------------------------------*/

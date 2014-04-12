@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: sys.c 8410 2013-08-08 16:59:55Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: sys.c 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 

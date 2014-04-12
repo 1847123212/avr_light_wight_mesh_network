@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: nwkFrame.c 7863 2013-05-13 20:14:34Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: nwkFrame.c 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -112,9 +115,9 @@ NwkFrame_t *nwkFrameNext(NwkFrame_t *frame)
   else
     frame++;
 
-  for(; frame < &nwkFrameFrames[NWK_BUFFERS_AMOUNT]; frame++)
+  for (; frame < &nwkFrameFrames[NWK_BUFFERS_AMOUNT]; frame++)
   {
-    if(NWK_FRAME_STATE_FREE != frame->state)
+    if (NWK_FRAME_STATE_FREE != frame->state)
       return frame;
   }
 

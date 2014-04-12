@@ -37,7 +37,10 @@
  *
  * \asf_license_stop
  *
- * $Id: halUart.c 8367 2013-07-25 17:18:50Z ataradov $
+ * Modification and other use of this code is subject to Atmel's Limited
+ * License Agreement (license.txt).
+ *
+ * $Id: halUart.c 9267 2014-03-18 21:46:19Z ataradov $
  *
  */
 
@@ -87,7 +90,7 @@ static volatile bool newData;
 *****************************************************************************/
 static void halUartSync(void)
 {
-  while (SC3_USART_STATUS & SC3_USART_STATUS_SYNCBUSY);
+  while (SERCOM3->USART.STATUS.bit.SYNCBUSY);
 }
 
 /*************************************************************************//**
@@ -101,27 +104,28 @@ void HAL_UartInit(uint32_t baudrate)
   HAL_GPIO_UART_RXD_in();
   HAL_GPIO_UART_RXD_pmuxen();
 
-  PORTA_PMUX12 = PORTA_PMUX12_PMUXE(2/*C*/) | PORTA_PMUX12_PMUXO(2/*C*/);
+  PORT->Group[HAL_GPIO_PORTA].PMUX[12].bit.PMUXE = 2/*C*/; // TX
+  PORT->Group[HAL_GPIO_PORTA].PMUX[12].bit.PMUXO = 2/*C*/; // RX
 
-  PM_APBCMASK |= PM_APBCMASK_SERCOM3;
+  PM->APBCMASK.reg |= PM_APBCMASK_SERCOM3;
 
-  GCLK_CLKCTRL = GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_ID(0x10/*SERCOM3_CORE*/) | GCLK_CLKCTRL_GEN(0);
+  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(SERCOM3_GCLK_ID_CORE) |
+      GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN(0);
 
-  SC3_USART_CTRLA = SC3_USART_CTRLA_MODE(1/*USART*/) | SC3_USART_CTRLA_DORD |
-      SC3_USART_CTRLA_RXPO(3/*PAD3*/) | SC3_USART_CTRLA_TXPO/*PAD2*/;
+  SERCOM3->USART.CTRLB.reg = SERCOM_USART_CTRLB_RXEN | SERCOM_USART_CTRLB_TXEN |
+      SERCOM_USART_CTRLB_CHSIZE(0/*8 bits*/);
   halUartSync();
 
-  SC3_USART_CTRLB = SC3_USART_CTRLB_TXEN | SC3_USART_CTRLB_RXEN | SC3_USART_CTRLB_CHSIZE(0/*8 bits*/);
+  SERCOM3->USART.BAUD.reg = (uint16_t)brr;
   halUartSync();
 
-  SC3_USART_BAUD = (uint16_t)brr;
+  SERCOM3->USART.CTRLA.reg = SERCOM_USART_CTRLA_ENABLE |
+      SERCOM_USART_CTRLA_DORD | SERCOM_USART_CTRLA_MODE_USART_INT_CLK |
+      SERCOM_USART_CTRLA_RXPO(3/*PAD3*/) | SERCOM_USART_CTRLA_TXPO/*PAD2*/;
   halUartSync();
 
-  SC3_USART_CTRLA |= SC3_USART_CTRLA_ENABLE;
-  halUartSync();
-
-  SC3_USART_INTENSET = SC3_USART_INTENSET_RXC;
-  NVIC_ISER = NVIC_ISER_SERCOM3;
+  SERCOM3->USART.INTENSET.reg = SERCOM_USART_INTENSET_RXC;
+  NVIC_EnableIRQ(SERCOM3_IRQn);
 
   txFifo.data = txData;
   txFifo.size = HAL_UART_TX_FIFO_SIZE;
@@ -172,20 +176,21 @@ uint8_t HAL_UartReadByte(void)
 *****************************************************************************/
 void HAL_IrqHandlerSercom3(void)
 {
-  uint8_t flags = SC3_USART_INTFLAG;
+  uint8_t flags = SERCOM3->USART.INTFLAG.reg;
 
-  if (flags & SC3_USART_INTFLAG_DRE)
+  if (flags & SERCOM_USART_INTFLAG_DRE)
   {
     udrEmpty = true;
-    SC3_USART_INTENCLR = SC3_USART_INTENSET_DRE;
+    SERCOM3->USART.INTENCLR.reg = SERCOM_USART_INTENCLR_DRE;
   }
 
-  if (flags & SC3_USART_INTFLAG_RXC)
+  if (flags & SERCOM_USART_INTFLAG_RXC)
   {
-    uint16_t status = SC3_USART_STATUS;
-    uint8_t byte = SC3_USART_DATA;
+    uint16_t status = SERCOM3->USART.STATUS.reg;
+    uint8_t byte = SERCOM3->USART.DATA.reg;
 
-    if (0 == (status & (SC3_USART_STATUS_BUFOVF | SC3_USART_STATUS_FERR | SC3_USART_STATUS_PERR)))
+    if (0 == (status & (SERCOM_USART_STATUS_BUFOVF | SERCOM_USART_STATUS_FERR |
+        SERCOM_USART_STATUS_PERR)))
     {
       if (rxFifo.bytes == rxFifo.size)
         return;
@@ -214,8 +219,8 @@ void HAL_UartTaskHandler(void)
     txFifo.bytes--;
 
     ATOMIC_SECTION_ENTER
-      SC3_USART_DATA = byte;
-      SC3_USART_INTENSET = SC3_USART_INTENSET_DRE;
+      SERCOM3->USART.DATA.reg = byte;
+      SERCOM3->USART.INTENSET.reg = SERCOM_USART_INTENSET_DRE;
       udrEmpty = false;
     ATOMIC_SECTION_LEAVE
   }
