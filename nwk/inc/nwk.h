@@ -85,6 +85,7 @@ typedef struct NwkIb_t
 #ifdef NWK_ENABLE_SECURITY
   uint32_t     key[4];
 #endif
+  uint16_t     lock;
 } NwkIb_t;
 
 /*- Variables --------------------------------------------------------------*/
@@ -96,6 +97,8 @@ void NWK_SetAddr(uint16_t addr);
 void NWK_SetPanId(uint16_t panId);
 void NWK_OpenEndpoint(uint8_t id, bool (*handler)(NWK_DataInd_t *ind));
 bool NWK_Busy(void);
+void NWK_Lock(void);
+void NWK_Unlock(void);
 void NWK_SleepReq(void);
 void NWK_WakeupReq(void);
 void NWK_TaskHandler(void);

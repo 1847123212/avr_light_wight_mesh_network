@@ -87,28 +87,9 @@ void halPhyInit(void)
 #endif
 
 #if defined(PLATFORM_MR16_BOARD)
-  PORTC.INT0MASK = (1 << 3);
-  PORTC.INTCTRL = PORT_INT0LVL_HI_gc;
-  PORTC.PIN3CTRL = (uint8_t)PORT_OPC_PULLDOWN_gc | PORT_ISC_RISING_gc;
 #elif defined(PLATFORM_TIDMARSH_NODE)
-  PORTD.INT0MASK = (1 << 0);
-  PORTD.INTCTRL = PORT_INT0LVL_HI_gc;
-  PORTD.PIN0CTRL = (uint8_t)PORT_OPC_PULLDOWN_gc | PORT_ISC_RISING_gc;
 #else
   #error Unknown board/platform
 #endif
 }
 
-/*****************************************************************************
-*****************************************************************************/
-#if defined(PLATFORM_MR16_BOARD)
-ISR(PORTC_INT0_vect)
-{
-  phyInterruptHandler();
-}
-#elif defined(PLATFORM_TIDMARSH_NODE)
-ISR(PORTD_INT0_vect)
-{
-  phyInterruptHandler();
-}
-#endif

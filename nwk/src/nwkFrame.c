@@ -83,6 +83,7 @@ NwkFrame_t *nwkFrameAlloc(void)
       memset(&nwkFrameFrames[i], 0, sizeof(NwkFrame_t));
       nwkFrameFrames[i].size = sizeof(NwkFrameHeader_t);
       nwkFrameFrames[i].payload = nwkFrameFrames[i].data + sizeof(NwkFrameHeader_t);
+      nwkIb.lock++;
       return &nwkFrameFrames[i];
     }
   }
@@ -96,6 +97,7 @@ NwkFrame_t *nwkFrameAlloc(void)
 void nwkFrameFree(NwkFrame_t *frame)
 {
   frame->state = NWK_FRAME_STATE_FREE;
+  nwkIb.lock--;
 }
 
 /*************************************************************************//**

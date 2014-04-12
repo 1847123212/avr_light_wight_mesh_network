@@ -87,6 +87,8 @@ void NWK_DataReq(NWK_DataReq_t *req)
   req->status = NWK_SUCCESS_STATUS;
   req->frame = NULL;
 
+  nwkIb.lock++;
+
   if (NULL == nwkDataReqQueue)
   {
     req->next = NULL;
@@ -133,8 +135,6 @@ static void nwkDataReqSendFrame(NWK_DataReq_t *req)
   if (frame->header.nwkFcf.multicast)
   {
     NwkFrameMulticastHeader_t *mcHeader = (NwkFrameMulticastHeader_t *)frame->payload;
-
-    frame->header.nwkFcf.linkLocal = 1;
 
     mcHeader->memberRadius = req->memberRadius;
     mcHeader->maxMemberRadius = req->memberRadius;
@@ -196,6 +196,7 @@ static void nwkDataReqConfirm(NWK_DataReq_t *req)
     prev->next = ((NWK_DataReq_t *)prev->next)->next;
   }
 
+  nwkIb.lock--;
   req->confirm(req);
 }
 

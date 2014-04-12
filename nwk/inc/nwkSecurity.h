@@ -49,14 +49,14 @@
 #include <stdbool.h>
 #include "sysConfig.h"
 
-#ifdef NWK_ENABLE_SECURITY
-
 /*- Definitions ------------------------------------------------------------*/
 #define NWK_SECURITY_MIC_SIZE        4
 #define NWK_SECURITY_KEY_SIZE        16
 #define NWK_SECURITY_BLOCK_SIZE      16
 
 /*- Prototypes -------------------------------------------------------------*/
+#ifdef NWK_ENABLE_SECURITY
+
 void NWK_SetSecurityKey(uint8_t *key);
 
 void nwkSecurityInit(void);
