@@ -100,7 +100,7 @@ static void halSetSystemFrequency(void)
 void HAL_Init(void)
 {
   //halSetSystemFrequency();
-  PMIC.CTRL = PMIC_HILVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_LOLVLEN_bm | PMIC_RREN_bm;
+  PMIC.CTRL = PMIC_HILVLEN_bm | PMIC_MEDLVLEN_bm | PMIC_LOLVLEN_bm;
   SYS_EnableInterrupts();
 
   HAL_TimerInit();

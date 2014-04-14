@@ -48,6 +48,9 @@
 #include "hal.h"
 #include "halGpio.h"
 
+#include "config.h"
+#include <util/delay.h>
+
 /*****************************************************************************
 *****************************************************************************/
 #if defined(PLATFORM_MR16_BOARD)
@@ -102,6 +105,7 @@ INLINE void HAL_PhySpiDeselect(void)
 INLINE void HAL_PhySlpTrSet(void)
 {
   HAL_GPIO_PHY_SLP_TR_set();
+  _delay_us(1);
 }
 
 /*****************************************************************************

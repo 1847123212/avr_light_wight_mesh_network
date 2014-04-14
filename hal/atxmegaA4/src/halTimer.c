@@ -52,7 +52,6 @@
 /*****************************************************************************
 *****************************************************************************/
 volatile uint8_t halTimerIrqCount;
-static volatile uint8_t halTimerDelayInt;
 
 /*****************************************************************************
 *****************************************************************************/
@@ -88,10 +87,8 @@ void HAL_TimerDelay(uint16_t us)
   if (TCC1.CCB > TCC1.PER)
     TCC1.CCB -= TCC1.PER;
 
-  halTimerDelayInt = 0;
-  TCC1.INTCTRLB = TC_CCBINTLVL_LO_gc;
-  while (0 == halTimerDelayInt);
-  TCC1.INTCTRLB = TC_CCBINTLVL_OFF_gc;
+  TCC1.INTFLAGS = TC1_CCBIF_bm;
+  while (0 == (TCC1.INTFLAGS & TC1_CCBIF_bm));
 
   PRAGMA(diag_default=Pa082);
 }
@@ -103,9 +100,3 @@ ISR(TCC1_OVF_vect)
   halTimerIrqCount++;
 }
 
-/*****************************************************************************
-*****************************************************************************/
-ISR(TCC1_CCB_vect)
-{
-  halTimerDelayInt = 1;
-}
