@@ -69,7 +69,7 @@ typedef enum
 /*- Prototypes -------------------------------------------------------------*/
 static void phyWriteRegister(uint8_t reg, uint8_t value);
 static uint8_t phyReadRegister(uint8_t reg);
-static void phyWaitState(uint8_t state);
+static bool phyWaitState(uint8_t state);
 static void phyTrxSetState(uint8_t state);
 static void phySetRxState(void);
 
@@ -287,9 +287,12 @@ static uint8_t phyReadRegister(uint8_t reg)
 
 /*************************************************************************//**
 *****************************************************************************/
-static void phyWaitState(uint8_t state)
+static bool phyWaitState(uint8_t state)
 {
-  while (state != (phyReadRegister(TRX_STATUS_REG) & TRX_STATUS_MASK));
+  uint16_t retries = 2048;
+  while ((state != (phyReadRegister(TRX_STATUS_REG) & TRX_STATUS_MASK))
+    && (--retries > 0));
+  return retries > 0;
 }
 
 /*************************************************************************//**
@@ -308,11 +311,14 @@ static void phySetRxState(void)
 *****************************************************************************/
 static void phyTrxSetState(uint8_t state)
 {
-  phyWriteRegister(TRX_STATE_REG, TRX_CMD_FORCE_TRX_OFF);
-  phyWaitState(TRX_STATUS_TRX_OFF);
+  for(uint8_t retries = 0; retries < 8; retries++) {
+    phyWriteRegister(TRX_STATE_REG, TRX_CMD_FORCE_TRX_OFF);
+    if(!phyWaitState(TRX_STATUS_TRX_OFF)) continue;
 
-  phyWriteRegister(TRX_STATE_REG, state);
-  phyWaitState(state);
+    phyWriteRegister(TRX_STATE_REG, state);
+    if(!phyWaitState(state)) continue;
+    break;
+  }
 }
 
 /*************************************************************************//**
@@ -344,8 +350,10 @@ void PHY_TaskHandler(void)
       ind.lqi  = phyRxBuffer[size];
       ind.rssi = rssi + PHY_RSSI_BASE_VAL;
       PHY_DataInd(&ind);
-
-      phyWaitState(TRX_STATUS_RX_AACK_ON);
+  
+      for(uint8_t retries=0; retries<8; retries++) {
+        if(phyWaitState(TRX_STATUS_RX_AACK_ON)) break;
+      }
     }
 
     else if (PHY_STATE_TX_WAIT_END == phyState)
