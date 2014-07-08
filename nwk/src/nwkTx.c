@@ -60,8 +60,8 @@
 #include "nwkSecurity.h"
 
 /*- Definitions ------------------------------------------------------------*/
-#define NWK_TX_ACK_WAIT_TIMER_INTERVAL    50 // ms
-#define NWK_TX_DELAY_TIMER_INTERVAL       10 // ms
+#define NWK_TX_ACK_WAIT_TIMER_INTERVAL    5 // ms
+#define NWK_TX_DELAY_TIMER_INTERVAL       1 // ms
 #define NWK_TX_DELAY_JITTER_MASK          0x07
 
 /*- Types ------------------------------------------------------------------*/
