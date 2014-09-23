@@ -77,6 +77,7 @@ static uint8_t phyRxBuffer[128];
 static bool phyRxState;
 #ifdef PHY_ENABLE_FRONTEND
 static bool phyFrontendBypass;
+static uint8_t phyAntennaMode;
 #endif
 
 /*- Implementations --------------------------------------------------------*/
@@ -275,8 +276,11 @@ int8_t PHY_EdReq(void)
 }
 #endif
 
+/*************************************************************************//**
+*****************************************************************************/
 #ifdef PHY_ENABLE_FRONTEND
-void PHY_FrontendSetBypass(bool bypass) {
+void PHY_FrontendSetBypass(bool bypass) 
+{
   phyFrontendBypass = bypass;
   uint8_t trx_ctrl_1 = phyReadRegister(TRX_CTRL_1_REG);
   if(bypass) {
@@ -285,6 +289,30 @@ void PHY_FrontendSetBypass(bool bypass) {
   } else {
     HAL_PhyFrontendEnableLNA(true);
     phyWriteRegister(TRX_CTRL_1_REG, trx_ctrl_1 | (1<<PA_EXT_EN));
+  }
+}
+
+/*************************************************************************//**
+*****************************************************************************/
+void PHY_FrontendSelectAntenna(uint8_t mode)
+{
+  phyAntennaMode = mode;
+  uint8_t rx_ctrl = phyReadRegister(RX_CTRL_REG);
+  switch(mode) {
+    case PHY_ANT_SEL_DISABLED:
+      phyWriteRegister(RX_CTRL_REG, rx_ctrl | 0x7);
+      phyWriteRegister(ANT_DIV_REG, 0);
+      break;
+    case PHY_ANT1:
+    case PHY_ANT2:
+      phyWriteRegister(RX_CTRL_REG, rx_ctrl | 0x7);
+      phyWriteRegister(ANT_DIV_REG, (1<<ANT_EXT_SW_EN) | (1<<mode));
+      break;
+    case PHY_ANT_DIVERSITY:
+      rx_ctrl &= ~0x7;
+      phyWriteRegister(RX_CTRL_REG, rx_ctrl | 0x3);
+      phyWriteRegister(ANT_DIV_REG, (1<<ANT_EXT_SW_EN) | (1<<ANT_DIV_EN));
+      break;
   }
 }
 #endif // PHY_ENABLE_FRONTEND

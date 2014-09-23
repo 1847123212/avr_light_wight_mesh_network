@@ -75,6 +75,16 @@ enum
   PHY_STATUS_ERROR                  = 3,
 };
 
+#ifdef PHY_ENABLE_FRONTEND
+enum
+{
+  PHY_ANT_SEL_DISABLED = 0,
+  PHY_ANT1 = 1,
+  PHY_ANT2 = 2,
+  PHY_ANT_DIVERSITY = 2,
+};
+#endif
+
 /*- Prototypes -------------------------------------------------------------*/
 void PHY_Init(void);
 void PHY_SetRxState(bool rx);
@@ -103,6 +113,7 @@ int8_t PHY_EdReq(void);
 
 #ifdef PHY_ENABLE_FRONTEND
 void PHY_FrontendSetBypass(bool bypass);
+void PHY_FrontendSelectAntenna(uint8_t mode);
 #endif
 
 #endif // _PHY_H_
