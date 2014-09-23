@@ -81,7 +81,7 @@ enum
   PHY_ANT_SEL_DISABLED = 0,
   PHY_ANT1 = 1,
   PHY_ANT2 = 2,
-  PHY_ANT_DIVERSITY = 2,
+  PHY_ANT_DIVERSITY = 3,
 };
 #endif
 

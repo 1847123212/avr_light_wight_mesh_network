@@ -45,6 +45,7 @@
 #define _HAL_PHY_H_
 
 #include <stdint.h>
+#include <stdbool.h>
 #include "hal.h"
 #include "halGpio.h"
 
@@ -78,7 +79,7 @@
   HAL_GPIO_PIN(PHY_MISO,   C, 6);
   HAL_GPIO_PIN(PHY_SCK,    C, 7);
 # if defined(PHY_ENABLE_FRONTEND)
-    HAL_GPIO_PIN(PHY_FE_CSD,    D, 2);
+    HAL_GPIO_PIN(PHY_FE_CPS,    D, 2);
     HAL_GPIO_PIN(PHY_FE_CSD,    D, 3);
 # endif // PHY_ENABLE_FRONTEND
 #endif
