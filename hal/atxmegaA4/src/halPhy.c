@@ -75,6 +75,12 @@ void halPhyInit(void)
   HAL_GPIO_PHY_MISO_in();
   HAL_GPIO_PHY_MOSI_out();
   HAL_GPIO_PHY_SCK_out();
+#if defined(PHY_ENABLE_FRONTEND)
+  HAL_GPIO_PHY_FE_CPS_out();
+  HAL_GPIO_PHY_FE_CSD_out();
+  HAL_GPIO_PHY_FE_CSD_set();
+  HAL_GPIO_PHY_FE_CPS_clr();
+#endif // PHY_ENABLE_FRONTEND
 
 #if F_CPU == 4000000 || F_CPU == 8000000 || F_CPU == 12000000
   SPIC.CTRL = SPI_ENABLE_bm | SPI_MASTER_bm | SPI_CLK2X_bm;
@@ -88,6 +94,7 @@ void halPhyInit(void)
 
 #if defined(PLATFORM_MR16_BOARD)
 #elif defined(PLATFORM_TIDMARSH_NODE)
+#elif defined(PLATFORM_BASESTATION)
 #else
   #error Unknown board/platform
 #endif

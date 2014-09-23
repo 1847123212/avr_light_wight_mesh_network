@@ -69,6 +69,18 @@
   HAL_GPIO_PIN(PHY_MOSI,   C, 5);
   HAL_GPIO_PIN(PHY_MISO,   C, 6);
   HAL_GPIO_PIN(PHY_SCK,    C, 7);
+#elif defined(PLATFORM_BASESTATION)
+  HAL_GPIO_PIN(PHY_RST,    D, 1);
+  HAL_GPIO_PIN(PHY_IRQ,    C, 3);
+  HAL_GPIO_PIN(PHY_SLP_TR, D, 0);
+  HAL_GPIO_PIN(PHY_CS,     C, 4);
+  HAL_GPIO_PIN(PHY_MOSI,   C, 5);
+  HAL_GPIO_PIN(PHY_MISO,   C, 6);
+  HAL_GPIO_PIN(PHY_SCK,    C, 7);
+# if defined(PHY_ENABLE_FRONTEND)
+    HAL_GPIO_PIN(PHY_FE_CSD,    D, 2);
+    HAL_GPIO_PIN(PHY_FE_CSD,    D, 3);
+# endif // PHY_ENABLE_FRONTEND
 #endif
 
 /*****************************************************************************
