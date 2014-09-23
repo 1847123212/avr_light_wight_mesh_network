@@ -89,6 +89,11 @@ uint8_t HAL_PhySpiWriteByte(uint8_t value);
 void HAL_PhyReset(void);
 void halPhyInit(void);
 
+#ifdef PHY_ENABLE_FRONTEND
+void HAL_PhyFrontendSetShutdown(bool shutdown);
+void HAL_PhyFrontendEnableLNA(bool enabled);
+#endif
+
 /*****************************************************************************
 *****************************************************************************/
 INLINE uint8_t HAL_PhySpiWriteByteInline(uint8_t value)

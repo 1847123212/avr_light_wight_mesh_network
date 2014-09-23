@@ -64,6 +64,26 @@ void HAL_PhyReset(void)
   HAL_GPIO_PHY_RST_set();
 }
 
+#ifdef PHY_ENABLE_FRONTEND
+void HAL_PhyFrontendSetShutdown(bool shutdown)
+{
+  if(shutdown) {
+    HAL_GPIO_PHY_FE_CSD_clr();
+    HAL_GPIO_PHY_FE_CPS_clr();
+  } else {
+    HAL_GPIO_PHY_FE_CSD_set();
+  }
+}
+
+void HAL_PhyFrontendEnableLNA(bool enabled) {
+  if(enabled) {
+    HAL_GPIO_PHY_FE_CPS_set();
+  } else {
+    HAL_GPIO_PHY_FE_CPS_clr();
+  }
+}
+#endif // PHY_ENABLE_FRONTEND
+
 /*****************************************************************************
 *****************************************************************************/
 void halPhyInit(void)

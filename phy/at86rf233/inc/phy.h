@@ -101,4 +101,8 @@ void PHY_EncryptReq(uint8_t *text, uint8_t *key);
 int8_t PHY_EdReq(void);
 #endif
 
+#ifdef PHY_ENABLE_FRONTEND
+void PHY_FrontendSetBypass(bool bypass);
+#endif
+
 #endif // _PHY_H_
