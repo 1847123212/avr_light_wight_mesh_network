@@ -99,6 +99,8 @@ void PHY_DataConf(uint8_t status);
 void PHY_DataInd(PHY_DataInd_t *ind);
 void PHY_TaskHandler(void);
 
+void PHY_RunContinuousTest(void);
+
 #ifdef PHY_ENABLE_RANDOM_NUMBER_GENERATOR
 uint16_t PHY_RandomReq(void);
 #endif

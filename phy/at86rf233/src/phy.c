@@ -308,7 +308,7 @@ void PHY_FrontendSelectAntenna(uint8_t mode)
     case PHY_ANT1:
     case PHY_ANT2:
       phyWriteRegister(RX_CTRL_REG, rx_ctrl | 0x7);
-      phyWriteRegister(ANT_DIV_REG, (1<<ANT_EXT_SW_EN) | (1<<mode));
+      phyWriteRegister(ANT_DIV_REG, (1<<ANT_EXT_SW_EN) | (mode));
       break;
     case PHY_ANT_DIVERSITY:
       rx_ctrl &= ~0x7;
@@ -318,6 +318,30 @@ void PHY_FrontendSelectAntenna(uint8_t mode)
   }
 }
 #endif // PHY_ENABLE_FRONTEND
+
+void PHY_RunContinuousTest(void) {
+  HAL_PhyReset();
+  phyWriteRegister(0x04, 0x00);
+  phyWriteRegister(0x02, 0x03);
+  phyWriteRegister(0x08, 0x33);
+  phyWriteRegister(0x05, 0x00);
+  phyWriteRegister(0x36, 0x0F);
+  phyWriteRegister(0x0C, 0x03);
+  phyWriteRegister(0x0A, 0x37);
+
+  HAL_PhySpiSelect();
+  HAL_PhySpiWriteByte(RF_CMD_FRAME_W);
+  HAL_PhySpiWriteByte(32 + PHY_CRC_SIZE);
+  for (uint8_t i = 0; i < 32; i++)
+    HAL_PhySpiWriteByte(0);
+  HAL_PhySpiDeselect();
+
+  phyWriteRegister(0x1C, 0x54);
+  phyWriteRegister(0x1C, 0x46);
+  _delay_ms(100);
+  //while(!(phyReadRegister(0x0F) & 1));
+  phyWriteRegister(0x02, 0x02);
+}
 
 /*************************************************************************//**
 *****************************************************************************/
