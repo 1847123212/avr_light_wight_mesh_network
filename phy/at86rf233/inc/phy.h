@@ -75,7 +75,7 @@ enum
   PHY_STATUS_ERROR                  = 3,
 };
 
-#ifdef PHY_ENABLE_FRONTEND
+#if defined(PHY_ENABLE_FRONTEND) || defined(PHY_ENABLE_RF_SWITCH)
 enum
 {
   PHY_ANT_SEL_DISABLED = 0,
@@ -113,8 +113,11 @@ void PHY_EncryptReq(uint8_t *text, uint8_t *key);
 int8_t PHY_EdReq(void);
 #endif
 
-#ifdef PHY_ENABLE_FRONTEND
+#if defined(PHY_ENABLE_FRONTEND)
 void PHY_FrontendSetBypass(bool bypass);
+#endif
+
+#if defined(PHY_ENABLE_FRONTEND) || defined(PHY_ENABLE_RF_SWITCH)
 void PHY_FrontendSelectAntenna(uint8_t mode);
 #endif
 
