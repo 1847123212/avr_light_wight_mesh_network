@@ -79,6 +79,9 @@ static uint8_t phyRxBuffer[128];
 static bool phyRxState;
 #ifdef PHY_ENABLE_FRONTEND
 static bool phyFrontendBypass;
+#endif
+
+#if defined(PHY_ENABLE_FRONTEND) || defined(PHY_ENABLE_RF_SWITCH)
 static uint8_t phyAntennaMode;
 #endif
 
@@ -294,8 +297,12 @@ void PHY_FrontendSetBypass(bool bypass)
   }
 }
 
+#endif // PHY_ENABLE_FRONTEND
+
 /*************************************************************************//**
 *****************************************************************************/
+#if defined(PHY_ENABLE_FRONTEND) || defined(PHY_ENABLE_RF_SWITCH)
+
 void PHY_FrontendSelectAntenna(uint8_t mode)
 {
   phyAntennaMode = mode;
@@ -317,7 +324,7 @@ void PHY_FrontendSelectAntenna(uint8_t mode)
       break;
   }
 }
-#endif // PHY_ENABLE_FRONTEND
+#endif 
 
 void PHY_RunContinuousTest(void) {
   HAL_PhyReset();
