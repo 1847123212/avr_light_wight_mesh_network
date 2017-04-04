@@ -116,6 +116,7 @@ void halPhyInit(void)
 
 #if defined(PLATFORM_MR16_BOARD)
 #elif defined(PLATFORM_TIDMARSH_NODE)
+#elif defined(PLATFORM_TIDMARSH_MK2)
 #elif defined(PLATFORM_BASESTATION)
 #else
   #error Unknown board/platform
