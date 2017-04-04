@@ -77,6 +77,10 @@ static void phySetRxState(void);
 static PhyState_t phyState = PHY_STATE_INITIAL;
 static uint8_t phyRxBuffer[128];
 static bool phyRxState;
+#ifdef PHY_ENABLE_FRONTEND
+static bool phyFrontendBypass;
+static uint8_t phyAntennaMode;
+#endif
 
 /*- Implementations --------------------------------------------------------*/
 
@@ -88,6 +92,11 @@ void PHY_Init(void)
 
   phyRxState = false;
   phyState = PHY_STATE_IDLE;
+
+# ifdef PHY_ENABLE_FRONTEND
+    phyFrontendBypass = true;
+    HAL_PhyFrontendEnableLNA(false);
+# endif
 
   phyWriteRegister(TRX_STATE_REG, TRX_CMD_TRX_OFF);
   phyWaitState(TRX_STATUS_TRX_OFF);
@@ -151,6 +160,9 @@ void PHY_SetTxPower(uint8_t txPower)
 *****************************************************************************/
 void PHY_Sleep(void)
 {
+# ifdef PHY_ENABLE_FRONTEND
+  HAL_PhyFrontendSetShutdown(true);
+# endif
   phyTrxSetState(TRX_CMD_TRX_OFF);
   HAL_PhySlpTrSet();
   phyState = PHY_STATE_SLEEP;
@@ -163,6 +175,12 @@ void PHY_Wakeup(void)
   HAL_PhySlpTrClear();
   phySetRxState();
   phyState = PHY_STATE_IDLE;
+# ifdef PHY_ENABLE_FRONTEND
+  HAL_PhyFrontendSetShutdown(false);
+  if(!phyFrontendBypass) {
+    HAL_PhyFrontendEnableLNA(true);
+  }
+# endif
 }
 
 /*************************************************************************//**
@@ -260,6 +278,47 @@ int8_t PHY_EdReq(void)
   return ed + PHY_RSSI_BASE_VAL;
 }
 #endif
+
+/*************************************************************************//**
+*****************************************************************************/
+#ifdef PHY_ENABLE_FRONTEND
+void PHY_FrontendSetBypass(bool bypass) 
+{
+  phyFrontendBypass = bypass;
+  uint8_t trx_ctrl_1 = phyReadRegister(TRX_CTRL_1_REG);
+  if(bypass) {
+    HAL_PhyFrontendEnableLNA(false);
+    phyWriteRegister(TRX_CTRL_1_REG, trx_ctrl_1 & ~(1<<PA_EXT_EN));
+  } else {
+    HAL_PhyFrontendEnableLNA(true);
+    phyWriteRegister(TRX_CTRL_1_REG, trx_ctrl_1 | (1<<PA_EXT_EN));
+  }
+}
+
+/*************************************************************************//**
+*****************************************************************************/
+void PHY_FrontendSelectAntenna(uint8_t mode)
+{
+  phyAntennaMode = mode;
+  uint8_t rx_ctrl = phyReadRegister(RX_CTRL_REG);
+  switch(mode) {
+    case PHY_ANT_SEL_DISABLED:
+      phyWriteRegister(RX_CTRL_REG, rx_ctrl | 0x7);
+      phyWriteRegister(ANT_DIV_REG, 0);
+      break;
+    case PHY_ANT1:
+    case PHY_ANT2:
+      phyWriteRegister(RX_CTRL_REG, rx_ctrl | 0x7);
+      phyWriteRegister(ANT_DIV_REG, (1<<ANT_EXT_SW_EN) | (mode));
+      break;
+    case PHY_ANT_DIVERSITY:
+      rx_ctrl &= ~0x7;
+      phyWriteRegister(RX_CTRL_REG, rx_ctrl | 0x3);
+      phyWriteRegister(ANT_DIV_REG, (1<<ANT_EXT_SW_EN) | (1<<ANT_DIV_EN));
+      break;
+  }
+}
+#endif // PHY_ENABLE_FRONTEND
 
 /*************************************************************************//**
 *****************************************************************************/
